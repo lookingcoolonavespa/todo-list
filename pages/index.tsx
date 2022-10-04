@@ -1,10 +1,11 @@
 import type { NextPage } from 'next';
 import { useState, useReducer } from 'react';
 import Project from '../components/Project';
-import Sidebar from '../components/Sidebar/Sidebar';
+import Sidebar from '../components/Sidebar';
 import UserContext from '../utils/contexts/UserContext';
 import ProjectInterface from '../utils/classes/Project';
 import TodoInterface from '../utils/classes/Todo';
+import ProjectClass from '../utils/classes/Project';
 
 const Home: NextPage = () => {
   interface State {
@@ -12,7 +13,7 @@ const Home: NextPage = () => {
     todoList: TodoInterface[];
   }
   const [{ projectList }, dispatch] = useReducer(reducer, {
-    projectList: [],
+    projectList: [new ProjectClass('first project')],
     todoList: [],
   });
   function reducer(
@@ -40,7 +41,7 @@ const Home: NextPage = () => {
     if (action.itemType === 'todo') {
       switch (action.type) {
         case 'add': {
-          todoList.push(action.payload);
+          todoList = todoList.concat(action.payload);
 
           projectList = projectList.map((p) => {
             if (p.id === action.payload.id) {
@@ -92,7 +93,7 @@ const Home: NextPage = () => {
     if (action.itemType === 'project') {
       switch (action.type) {
         case 'add': {
-          projectList.push(action.payload);
+          projectList = projectList.concat(action.payload);
         }
 
         case 'edit': {
@@ -123,8 +124,10 @@ const Home: NextPage = () => {
         dispatch,
       }}
     >
-      <Sidebar setActiveProject={setActiveProject} />
-      <Project {...projectList[activeProject]} />
+      <div className="flex flex-row min-h-screen bg-slate-700">
+        <Sidebar setActiveProject={setActiveProject} />
+        <Project {...projectList[activeProject]} />
+      </div>
     </UserContext.Provider>
   );
 };

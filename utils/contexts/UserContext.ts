@@ -5,6 +5,9 @@ import { Dispatch } from '../../types/types';
 const UserContext = createContext<{
   projectList: Project[];
   dispatch: Dispatch;
-} | null>(null);
+}>({
+  projectList: [],
+  dispatch: () => undefined,
+});
 
 export default UserContext;

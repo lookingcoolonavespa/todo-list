@@ -17,14 +17,9 @@ a {
 
 * {
   box-sizing: border-box;
+  @apply transition-all duration-300 ease-out;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-  body {
-    color: white;
-    background: black;
-  }
+html {
+  @apply text-gray-300;
 }

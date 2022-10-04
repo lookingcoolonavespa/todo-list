@@ -1,1 +1,1 @@
-export const subsections = ['all', 'today', 'upcoming'] as const;
+export const subsections = ['All', 'Today', 'Upcoming'] as const;
