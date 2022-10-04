@@ -93,6 +93,7 @@ const Home: NextPage = () => {
     if (action.itemType === 'project') {
       switch (action.type) {
         case 'add': {
+          if (!action.payload) return state;
           projectList = projectList.concat(action.payload);
         }
 

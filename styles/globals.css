@@ -23,3 +23,12 @@ a {
 html {
   @apply text-gray-300;
 }
+
+input:focus {
+  border: none;
+  outline: none;
+}
+
+.action-btn {
+  @apply bg-orange-400 text-gray-700 hover:bg-orange-300 rounded;
+}

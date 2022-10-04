@@ -1,0 +1,7 @@
+.main {
+  @apply text-gray-700;
+}
+
+.bg {
+  @apply bg-slate-400;
+}

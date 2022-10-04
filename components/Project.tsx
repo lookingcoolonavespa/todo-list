@@ -3,26 +3,26 @@ import ProjectInterface from '../utils/classes/Project';
 import TodoList from './TodoList';
 import { SubsectionType } from '../types/types';
 import { subsections } from '../utils/constants';
+import TodoForm from './TodoForm';
 
-interface ProjectProps extends ProjectInterface {}
-
-export default function Project({ title, todoList }: ProjectProps) {
+export default function Project({ title, todoList }: ProjectInterface) {
   const [subsection, setSubsection] = useState<SubsectionType>('Today');
 
   if (!title && !todoList)
     return (
-      <main className="flex justify-center items-center flex-1">
+      <main className="flex justify-center items-center flex-grow">
         <div>No projects yet</div>
       </main>
     );
 
   return (
-    <main className="flex mx-[10%] my-10">
+    <main className="flex flex-col basis-[768px] flex-shrink gap-y-11 my-10 md:mx-[10%] lg:mx-auto max-w-3xl">
       <ProjectHeader
         title={title}
         active={subsection}
         setActive={setSubsection}
       />
+      <TodoForm />
       <TodoList list={todoList} />
     </main>
   );

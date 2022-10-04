@@ -50,14 +50,15 @@ function ProjectForm() {
         />
         <button
           type="button"
-          className="text-2xl w-8 h-9 flex flex-shrink-0 justify-center items-center bg-rose-700  rounded hover:bg-rose-600"
-          onClick={() =>
+          className="action-btn text-2xl w-8 h-9 flex flex-shrink-0 justify-center items-center"
+          onClick={() => {
+            if (!title) return;
             dispatch({
               itemType: 'project',
               type: 'add',
               payload: new Project(title),
-            })
-          }
+            });
+          }}
         >
           +
         </button>
