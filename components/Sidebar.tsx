@@ -3,11 +3,9 @@ import UserContext from '../utils/contexts/UserContext';
 import Project from '../utils/classes/Project';
 import InputBox from './misc/InputBox';
 import Subtitle from './misc/Subtitle';
-interface SidebarProps {
-  setActiveProject: React.Dispatch<React.SetStateAction<number>>;
-}
+interface SidebarProps {}
 
-export default function Sidebar({ setActiveProject }: SidebarProps) {
+export default function Sidebar() {
   const { projectList } = useContext(UserContext);
 
   return (
@@ -15,17 +13,20 @@ export default function Sidebar({ setActiveProject }: SidebarProps) {
       <ProjectForm />
       <Subtitle title="Projects" />
       {projectList.map((p) => (
-        <ProjectName key={p.id} {...p} />
+        <ProjectBtn key={p.id} {...p} />
       ))}
     </aside>
   );
 }
 
-function ProjectName({ title, id }: Project) {
+function ProjectBtn({ title, id }: Project) {
+  const { setActiveProject } = useContext(UserContext);
+
   return (
     <button
       type="button"
       className="bg-slate-700 py-2 rounded hover:bg-slate-600"
+      onClick={() => setActiveProject && setActiveProject(id)}
     >
       {title}
     </button>
@@ -34,35 +35,38 @@ function ProjectName({ title, id }: Project) {
 
 function ProjectForm() {
   const [title, setTitle] = useState('');
-  const ctxt = useContext(UserContext);
-  if (!ctxt) return <div></div>;
 
-  const { dispatch } = ctxt;
+  const { dispatch } = useContext(UserContext);
 
   return (
-    <div className="flex flex-col">
+    <form
+      className="flex flex-col"
+      onSubmit={(e) => {
+        e.preventDefault();
+
+        if (!title) return;
+        dispatch({
+          itemType: 'project',
+          type: 'add',
+          payload: new Project(title),
+        });
+
+        setTitle('');
+      }}
+    >
       <Subtitle title="Add a new project" className="mb-3" />
       <div className="basis-9 flex justify-center items-center gap-x-3 ">
         <InputBox
-          type="text"
           value={title}
           onChange={(e) => setTitle(e.currentTarget.value)}
         />
         <button
-          type="button"
+          type="submit"
           className="action-btn text-2xl w-8 h-9 flex flex-shrink-0 justify-center items-center"
-          onClick={() => {
-            if (!title) return;
-            dispatch({
-              itemType: 'project',
-              type: 'add',
-              payload: new Project(title),
-            });
-          }}
         >
           +
         </button>
       </div>
-    </div>
+    </form>
   );
 }

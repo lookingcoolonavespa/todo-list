@@ -25,10 +25,25 @@ html {
 }
 
 input:focus {
-  border: none;
   outline: none;
 }
 
 .action-btn {
   @apply bg-orange-400 text-gray-700 hover:bg-orange-300 rounded;
+}
+
+.rect-btn {
+  @apply py-2 px-4;
+}
+
+.animated-btn-sq {
+  @apply p-2 rounded hover:bg-slate-600 hover:-translate-x-0.5 hover:-translate-y-0.5;
+}
+
+.underline_on_hover {
+  @apply hover:underline;
+}
+
+.tooltip {
+  @apply bg-gray-800 rounded text-xs absolute left-6 top-1 w-max shadow-md scale-0;
 }
