@@ -1,0 +1,30 @@
+import { CustomValidator } from 'express-validator';
+import { Validator } from '../types/types';
+import { Pool } from 'pg';
+
+export const isUsernameInUse =
+  (db: Pool): CustomValidator =>
+  async (username) => {
+    const user = await db.query(
+      `Select * FROM users WHERE username = '${username}';`
+    );
+
+    return user ? Promise.reject('username in use') : Promise.resolve();
+  };
+
+export const doPasswordsMatch: CustomValidator = async (value, { req }) =>
+  value === req.body.password;
+
+export const checkUsername: Validator = (username: string) => {
+  if (username.match(/^[A-Za-z0-9_]{6,20}$/)) return { error: '' };
+  else
+    return {
+      error:
+        'username must be between 6 and 20 characters. Only characters allowed are alphanumeric characters or underscores.',
+    };
+};
+
+export const confirmPassword: Validator = (
+  value: string,
+  password: string
+) => ({ error: value === password ? '' : 'passwords do not match' });

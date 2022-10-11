@@ -47,3 +47,7 @@ input:focus {
 .tooltip {
   @apply bg-gray-800 rounded text-xs absolute left-6 top-1 w-max shadow-md scale-0;
 }
+
+.main-bg {
+  @apply bg-slate-700;
+}

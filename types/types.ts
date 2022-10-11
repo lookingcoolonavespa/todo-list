@@ -27,3 +27,7 @@ export type Dispatch = ReactDispatch<
       payload: { id: number; project: number };
     }
 >;
+
+export type Validator =
+  | ((value: string) => { error: string })
+  | ((value: string, confirmStr: string) => { error: string });

@@ -6,8 +6,6 @@ import normalizeDate from '../utils/normalizeDate';
 import ConfirmCancelBtns from './misc/ConfirmCancelBtns';
 import Functions from './misc/Functions';
 import InputBox from './misc/InputBox';
-import PencilSvg from './svg/PencilSvg';
-import TrashSvg from './svg/TrashSvg';
 
 interface TodoListProps {
   list: TodoInterface[];
