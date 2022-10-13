@@ -3,12 +3,13 @@ import {
   ValidationError,
   ValidationChain,
 } from 'express-validator';
-import { NextApiRequest, NextApiResponse } from 'next';
+import next, { NextApiRequest, NextApiResponse } from 'next';
 
 export default function validateMiddleware(
   validations: ValidationChain[]
-): (req: NextApiRequest) => void {
-  return async (req) => {
+): (req: NextApiRequest, res: NextApiResponse, next: () => void) => void {
+  return async (req, res, next) => {
     await Promise.all(validations.map((v) => v.run(req)));
+    next();
   };
 }

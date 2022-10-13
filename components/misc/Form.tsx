@@ -1,25 +1,19 @@
-import { Dispatch, SetStateAction, ReactNode, useRef } from 'react';
-import InputBox from './InputBox';
+import { ReactNode, useRef } from 'react';
 import useInputError from '../../utils/hooks/useInputError';
 import InputField from './InputField';
-import { Validator } from '../../types/types';
+import { StringKeys, Validator } from '../../types/types';
 import Field from '../../utils/classes/Field';
 
-interface FormProps {
-  fields: Field[];
-  inputValues: Record<FormProps['fields'][number]['name'], string>;
-  validators: Record<FormProps['fields'][number]['name'], Validator>;
+interface FormProps<K extends { [key: string]: string }> {
+  fields: Field<StringKeys<K>>[];
+  inputValues: Record<keyof K, string>;
+  validators: Record<keyof K, Validator>;
   btns: ReactNode | ReactNode[];
-  classNames: {
-    main: string;
-    btnCtn: string;
-  };
+  classNames: string;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSelectChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   submitAction: (() => Promise<void>) | (() => void);
   cleanUp?: () => void;
   close: () => void;
-  setError: Dispatch<SetStateAction<string>>;
 }
 
 export default function Form({
@@ -32,9 +26,13 @@ export default function Form({
   submitAction,
   cleanUp,
   close,
-}: FormProps) {
+}: FormProps<{
+  username: string;
+  password: string;
+  confirmPassword: string;
+}>) {
   const formRef = useRef<HTMLFormElement>(null);
-  const fieldNames = fields.map((f) => f.name);
+  const fieldNames = fields.map((f) => f.name as string);
   const { inputError, validateInput, submitForm } = useInputError(
     fieldNames,
     validators
@@ -48,6 +46,7 @@ export default function Form({
         cleanUp = cleanUp || close;
         await submitForm(e, inputValues, submitAction, cleanUp);
       }}
+      className={classNames}
     >
       <div className="content">
         <input type="password" hidden />
@@ -60,7 +59,9 @@ export default function Form({
               onBlur={() => validateInput(f.name, inputValues[f.name])}
               error={inputError[f.name]}
               onChange={(e) => {
-                validateInput(f.name, inputValues[f.name]);
+                if (inputError[f.name]) {
+                  validateInput(f.name, inputValues[f.name]);
+                }
                 handleInputChange(e);
               }}
               value={inputValues[f.name] || ''}
@@ -69,9 +70,7 @@ export default function Form({
           );
         })}
       </div>
-      <footer>
-        <div className={classNames.btnCtn}>{btns}</div>
-      </footer>
+      <footer>{btns}</footer>
     </form>
   );
 }

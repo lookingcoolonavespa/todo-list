@@ -24,7 +24,15 @@ export const checkUsername: Validator = (username: string) => {
     };
 };
 
-export const confirmPassword: Validator = (
-  value: string,
-  password: string
-) => ({ error: value === password ? '' : 'passwords do not match' });
+export const checkPassword: Validator = (value: string) => ({
+  error: value.match(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/
+  )
+    ? ''
+    : 'password must be minimum eight and maximum 20 characters, contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+});
+
+export const confirmPassword: (password: string) => Validator =
+  (password: string) => (value: string) => ({
+    error: value === password ? '' : 'passwords do not match',
+  });

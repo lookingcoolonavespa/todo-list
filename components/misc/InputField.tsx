@@ -1,9 +1,7 @@
 import React, { HTMLInputTypeAttribute } from 'react';
-import { FieldsInterface } from '../../types/interfaces';
+import Field from '../../utils/classes/Field';
 
-import styles from '../styles/InputField.module.scss';
-
-interface InputFieldProps extends FieldsInterface {
+interface InputFieldProps extends Field<string> {
   error: string;
   type: HTMLInputTypeAttribute;
   autoFocus: boolean;
@@ -17,22 +15,19 @@ export default function InputField({
   error,
   ...inputProps
 }: InputFieldProps) {
-  const rootClasses = [styles.main, 'form-group'];
-  if (error) rootClasses.push('error');
-
   return (
-    <div className={rootClasses.join(' ')}>
-      <div className={styles.content}>
+    <div>
+      <div>
         {label && (
           <label className="label">
             <span>{label}</span>
           </label>
         )}
-        <div className={styles['input-wrapper']}>
-          <input {...inputProps} />
+        <div>
+          <input className="text-gray-700" {...inputProps} />
         </div>
       </div>
-      {error && <span className={styles.error_msg}>{error}</span>}
+      {error && <span>{error}</span>}
     </div>
   );
 }

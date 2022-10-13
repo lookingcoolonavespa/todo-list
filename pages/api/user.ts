@@ -3,8 +3,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { connectToPool } from '../../utils/pool';
 import initMiddleware from '../../utils/initMiddleware';
 import validateMiddleware from '../../utils/validateMiddleware';
-import { isUsernameInUse, doPasswordsMatch } from '../../utils/validators';
-import bcrypt from 'bcryptjs';
+import { isUsernameInUse } from '../../utils/validators';
+import { hash } from 'bcryptjs';
 import { randomUUID } from 'crypto';
 
 export default async function handler(
@@ -33,10 +33,6 @@ export default async function handler(
               .trim()
               .notEmpty()
               .withMessage('password is missing'),
-            body('confirm_password')
-              .trim()
-              .custom(doPasswordsMatch)
-              .withMessage('passwords do not match'),
           ])
         )(req, res);
 
@@ -45,18 +41,19 @@ export default async function handler(
           return res.status(422).json({ errors: errors.array() });
         }
 
-        bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
-          if (err) return res.status(422).json({ errors: err });
+        const hashed = await hash(req.body.password, 10);
+        await client.query(
+          `INSERT INTO users (id, username, password) VALUES ('${randomUUID()}', '${
+            req.body.username
+          }', '${hashed}')`
+        );
 
-          await client.query(
-            `INSERT INTO users (id, username, password) VALUES (${
-              (randomUUID(), req.body.username, hashedPassword)
-            })`
-          );
-        });
+        return res.status(200).end();
 
         break;
       } catch (err) {
+        console.log(err);
+        return res.status(422).json({ errors: err });
       } finally {
         client.release();
       }

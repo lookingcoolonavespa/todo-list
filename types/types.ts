@@ -28,6 +28,9 @@ export type Dispatch = ReactDispatch<
     }
 >;
 
-export type Validator =
-  | ((value: string) => { error: string })
-  | ((value: string, confirmStr: string) => { error: string });
+export type Validator = (
+  value: string,
+  confirmStr?: string
+) => { error: string };
+
+export type StringKeys<I> = Extract<keyof I, string>;

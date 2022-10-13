@@ -37,17 +37,10 @@ export default function useInputError(
   ) {
     e.preventDefault();
 
-    const {
-      currentTarget: { elements }, // destructure e to get elements
-    } = e;
-
     let errors = false;
     for (const fname of inputNames) {
       // iterate through each input field and validate
-      const currEl = elements.namedItem(fname);
-      if (!(currEl instanceof HTMLInputElement)) {
-        continue;
-      }
+
       const valid = validateInput(fname, inputValues[fname]);
       if (!valid) errors = true;
     }
