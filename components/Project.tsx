@@ -6,8 +6,7 @@ import { subsections } from '../utils/constants';
 import TodoForm from './TodoForm';
 import Functions from './misc/Functions';
 import UserContext from '../utils/contexts/UserContext';
-import InputBox from './misc/InputBox';
-import ConfirmCancelBtns from './misc/ConfirmCancelBtns';
+import DuoBtnsText from './misc/DuoBtnsText';
 
 interface ProjectProps {
   details?: ProjectInterface;
@@ -125,10 +124,10 @@ function ProjectHeader({
               setProjectTitle(e.target.value);
             }}
           />
-          <ConfirmCancelBtns
-            confirmText="Save changes"
-            cancelText="Cancel"
-            cancelCb={() => {
+          <DuoBtnsText
+            leftText="Save changes"
+            rightText="Cancel"
+            rightCb={() => {
               setEdit(false);
               setProjectTitle(title);
             }}

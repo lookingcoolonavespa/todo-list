@@ -51,3 +51,11 @@ input:focus {
 .main-bg {
   @apply bg-slate-700;
 }
+
+.input_text {
+  @apply min-w-0 bg-gray-300 text-gray-900 py-1 px-2 rounded flex-shrink;
+}
+
+.title {
+  @apply text-4xl font-medium;
+}

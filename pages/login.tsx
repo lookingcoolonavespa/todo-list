@@ -3,7 +3,6 @@ import { NextPage } from 'next';
 import Link from 'next/link';
 import { ChangeEvent, useState } from 'react';
 import DuoBtnsLink from '../components/misc/DuoBtnsLink';
-import DuoBtns from '../components/misc/DuoBtnsText';
 import Form from '../components/misc/Form';
 import Logo from '../components/misc/Logo';
 import Field from '../utils/classes/Field';
@@ -13,7 +12,7 @@ import {
   confirmPassword,
 } from '../utils/validators';
 
-const Sign_Up: NextPage = () => {
+const Login: NextPage = () => {
   const [inputValues, setInputValues] = useState({
     username: '',
     password: '',
@@ -38,7 +37,6 @@ const Sign_Up: NextPage = () => {
         fields={[
           new Field('Username', 'username', 'text'),
           new Field('Password', 'password', 'password'),
-          new Field('Confirm password', 'confirmPassword', 'password'),
         ]}
         validators={{
           username: checkUsername,
@@ -59,7 +57,7 @@ const Sign_Up: NextPage = () => {
           }
         }}
         btns={
-          <DuoBtnsLink leftText="Sign up" rightText="Cancel" href="/login" />
+          <DuoBtnsLink leftText="Log in" rightText="Sign up" href="/sign_up" />
         }
         close={() => {}}
         classNames="flex justify-center items-center flex-col w-full "
@@ -68,4 +66,4 @@ const Sign_Up: NextPage = () => {
   );
 };
 
-export default Sign_Up;
+export default Login;

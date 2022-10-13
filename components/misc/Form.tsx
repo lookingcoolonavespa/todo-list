@@ -48,7 +48,7 @@ export default function Form({
       }}
       className={classNames}
     >
-      <div className="content">
+      <div className="flex flex-col gap-y-3 mb-10">
         <input type="password" hidden />
         {/* need this to turn off autocomplete */}
         {fields.map((f, idx) => {
@@ -56,7 +56,12 @@ export default function Form({
             <InputField
               key={idx}
               autoFocus={idx === 0}
-              onBlur={() => validateInput(f.name, inputValues[f.name])}
+              onBlur={() => {
+                setTimeout(
+                  () => validateInput(f.name, inputValues[f.name]),
+                  200
+                );
+              }}
               error={inputError[f.name]}
               onChange={(e) => {
                 if (inputError[f.name]) {

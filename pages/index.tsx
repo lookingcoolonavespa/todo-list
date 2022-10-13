@@ -157,7 +157,7 @@ const Home: NextPage = () => {
         setActiveProject,
       }}
     >
-      <div className="flex flex-row min-h-screen bg-slate-700">
+      <div className="flex flex-row min-h-screen main-bg">
         <Sidebar />
         <Project
           details={projectList.find((p) => p.id === activeProject)}

@@ -3,7 +3,7 @@ import TodoInterface from '../utils/classes/Todo';
 import UserContext from '../utils/contexts/UserContext';
 import useTodoDetails from '../utils/hooks/useTodoDetails';
 import normalizeDate from '../utils/normalizeDate';
-import ConfirmCancelBtns from './misc/ConfirmCancelBtns';
+import DuoBtnsText from './misc/DuoBtnsText';
 import Functions from './misc/Functions';
 import InputBox from './misc/InputBox';
 
@@ -133,10 +133,10 @@ function Todo({ id, title, dueDate, completed, project }: TodoInterface) {
                 })}
               </select>
             </div>
-            <ConfirmCancelBtns
-              confirmText="Save changes"
-              cancelText="Cancel"
-              cancelCb={() => {
+            <DuoBtnsText
+              leftText="Save changes"
+              rightText="Cancel"
+              rightCb={() => {
                 setEdit(false);
                 reset();
               }}

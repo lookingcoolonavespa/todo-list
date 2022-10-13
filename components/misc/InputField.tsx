@@ -16,18 +16,20 @@ export default function InputField({
   ...inputProps
 }: InputFieldProps) {
   return (
-    <div>
+    <div className="max-w-[268px]">
       <div>
         {label && (
-          <label className="label">
+          <label className="block mb-2">
             <span>{label}</span>
           </label>
         )}
         <div>
-          <input className="text-gray-700" {...inputProps} />
+          <input className="input_text" {...inputProps} />
         </div>
       </div>
-      {error && <span>{error}</span>}
+      {error && (
+        <span className="block text-sm text-red-500 mt-2">{error}</span>
+      )}
     </div>
   );
 }
