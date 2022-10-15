@@ -5,12 +5,12 @@ import { Dispatch } from '../../types/types';
 const UserContext = createContext<{
   projectList: Project[];
   dispatch: Dispatch;
-  activeProject: number;
-  setActiveProject: React.Dispatch<React.SetStateAction<number>> | null;
+  activeProject: string;
+  setActiveProject: React.Dispatch<React.SetStateAction<string>> | null;
 }>({
   projectList: [],
   dispatch: () => undefined,
-  activeProject: 0,
+  activeProject: '',
   setActiveProject: null,
 });
 

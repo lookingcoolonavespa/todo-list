@@ -1,10 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { PoolClient } from 'pg';
-import { connectToPool } from '../../utils/pool';
+import { connectToPool } from '../../../utils/pool';
 import bcrypt from 'bcryptjs';
-import { User } from '../../types/interfaces';
-import { sessionOptions } from '../../utils/session';
+import { User } from '../../../types/interfaces';
+import { sessionOptions } from '../../../utils/session';
 
 let client: PoolClient;
 
@@ -31,7 +31,7 @@ async function loginRoute(req: NextApiRequest, res: NextApiResponse) {
       return res.status(401).send('incorrect credentials');
     }
   } catch (err) {
-    console.log(err);
+    return res.status(500).json(err);
   }
 }
 

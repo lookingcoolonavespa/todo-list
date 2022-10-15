@@ -1,15 +1,19 @@
 import { body, validationResult } from 'express-validator';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { connectToPool } from '../../utils/pool';
-import initMiddleware from '../../utils/initMiddleware';
-import validateMiddleware from '../../utils/validateMiddleware';
-import { isUsernameInUse } from '../../utils/validators';
+import { connectToPool } from '../../../utils/pool';
+import initMiddleware from '../../../utils/initMiddleware';
+import validateMiddleware from '../../../utils/validateMiddleware';
+import {
+  checkPassword,
+  checkUsername,
+  isValueUnique,
+} from '../../../utils/validators';
 import { hash } from 'bcryptjs';
 import { randomUUID } from 'crypto';
 import { PoolClient } from 'pg';
-import { LoggedInUser } from '../../types/interfaces';
+import { LoggedInUser } from '../../../types/interfaces';
 import { withIronSessionApiRoute } from 'iron-session/next';
-import { sessionOptions } from '../../utils/session';
+import { sessionOptions } from '../../../utils/session';
 
 let client: PoolClient | undefined;
 
@@ -45,13 +49,34 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
               .trim()
               .notEmpty()
               .withMessage('username is missing')
-              .isLength({ max: 100 })
-              .withMessage('username is too long brudda')
-              .custom(isUsernameInUse(client)),
+              .isLength({ max: 20, min: 6 })
+              .withMessage('username must be between 6 and 20 characters')
+              .custom(async function isUsernameInUse(username: string) {
+                const result = await isValueUnique(
+                  client as PoolClient,
+                  username,
+                  'users',
+                  'username'
+                );
+                if (!result) throw new Error('username is in use');
+                return true;
+              })
+              .custom(function matchRegEx(username: string) {
+                const result = checkUsername(username);
+                if (result.error) throw new Error(result.error);
+                return true;
+              }),
             body('password')
               .trim()
               .notEmpty()
-              .withMessage('password is missing'),
+              .withMessage('password is missing')
+              .isLength({ max: 20, min: 8 })
+              .withMessage('password must be between 8 and 20 characters')
+              .custom(function matchRegEx(password: string) {
+                const result = checkPassword(password);
+                if (result.error) throw new Error(result.error);
+                return true;
+              }),
           ])
         )(req, res);
 
@@ -73,10 +98,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         req.session.user = user;
         await req.session?.save();
 
-        return res.status(200).json({}).end();
+        return res.status(200).end();
       } catch (err) {
-        console.log(err);
-        return res.status(500).json({ errors: err });
+        return res.status(500).json(err);
       } finally {
         client.release(true);
         client = undefined;

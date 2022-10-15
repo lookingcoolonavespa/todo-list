@@ -10,7 +10,7 @@ import DuoBtnsText from './misc/DuoBtnsText';
 
 interface ProjectProps {
   details?: ProjectInterface;
-  activeProject: number;
+  activeProject: string;
 }
 
 export default function Project({ details, activeProject }: ProjectProps) {

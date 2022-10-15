@@ -1,14 +1,14 @@
-let id = 0;
+import { uuid } from 'uuidv4';
 
 export default class Todo {
-  id: number;
-  project: number;
+  id: string;
+  project: string;
   title: string;
   dueDate: Date;
   completed: boolean;
 
-  constructor(project: number, title: string, dueDate: Date) {
-    this.id = id++;
+  constructor(project: string, title: string, dueDate: Date) {
+    this.id = uuid();
     this.project = project;
     this.title = title;
     this.dueDate = dueDate;

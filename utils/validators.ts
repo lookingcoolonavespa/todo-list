@@ -2,20 +2,21 @@ import { CustomValidator } from 'express-validator';
 import { Validator } from '../types/types';
 import { PoolClient } from 'pg';
 
-export const isUsernameInUse =
-  (client: PoolClient): CustomValidator =>
-  async (username: string) => {
-    const user = await client.query(
-      `Select * FROM users WHERE username = '${username}';`
-    );
-
-    return user.rows.length
-      ? Promise.reject('username in use')
-      : Promise.resolve();
-  };
-
 export const doPasswordsMatch: CustomValidator = async (value, { req }) =>
   value === req.body.password;
+
+export const isValueUnique = async (
+  client: PoolClient,
+  value: string,
+  table: string,
+  column: string
+) => {
+  const entity = await client.query(
+    `SELECT id FROM ${table} WHERE ${column} = '${value}'`
+  );
+
+  return !entity.rows.length;
+};
 
 export const checkUsername: Validator = (username: string) => {
   if (username.match(/^[A-Za-z0-9_]{6,20}$/)) return { error: '' };

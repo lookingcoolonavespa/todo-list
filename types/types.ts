@@ -20,12 +20,12 @@ export type Dispatch = ReactDispatch<
   | {
       type: 'delete';
       itemType: 'project';
-      payload: number;
+      payload: string;
     }
   | {
       type: 'delete';
       itemType: 'todo';
-      payload: { id: number; project: number };
+      payload: { id: string; project: string };
     }
 >;
 

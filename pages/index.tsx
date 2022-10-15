@@ -1,12 +1,32 @@
-import type { NextPage } from 'next';
+import type { NextApiRequest, NextApiResponse, NextPage } from 'next';
 import { useState, useReducer, useEffect } from 'react';
 import Project from '../components/Project';
 import Sidebar from '../components/Sidebar';
 import UserContext from '../utils/contexts/UserContext';
 import ProjectClass from '../utils/classes/Project';
 import TodoClass from '../utils/classes/Todo';
+import { withIronSessionSsr } from 'iron-session/next';
+import { sessionOptions } from '../utils/session';
+import { LoggedInUser, User } from '../types/interfaces';
+import { randomUUID } from 'crypto';
 
 const defaultProject = new ProjectClass('first project');
+
+export const getServerSideProps = withIronSessionSsr(async ({ req, res }) => {
+  if (req.session.user)
+    return {
+      props: { user: req.session.user },
+    };
+
+  res.setHeader('location', '/login');
+  res.statusCode = 302;
+  res.end();
+  return {
+    props: {
+      user: { loggedIn: false, id: '' } as LoggedInUser,
+    },
+  };
+}, sessionOptions);
 
 const Home: NextPage = () => {
   interface State {
@@ -33,12 +53,12 @@ const Home: NextPage = () => {
       | {
           type: 'delete';
           itemType: 'project';
-          payload: number;
+          payload: string;
         }
       | {
           type: 'delete';
           itemType: 'todo';
-          payload: { id: number; project: number };
+          payload: { id: string; project: string };
         }
   ) {
     let { projectList, todoList } = state;
@@ -138,13 +158,13 @@ const Home: NextPage = () => {
     };
   }
 
-  const [activeProject, setActiveProject] = useState(0);
+  const [activeProject, setActiveProject] = useState(defaultProject.id);
 
   useEffect(function addDefaultTodo() {
     dispatch({
       type: 'add',
       itemType: 'todo',
-      payload: new TodoClass(0, 'rule the world', new Date()),
+      payload: new TodoClass(defaultProject.id, 'rule the world', new Date()),
     });
   }, []);
 
