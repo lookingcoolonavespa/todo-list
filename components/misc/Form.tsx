@@ -1,17 +1,19 @@
 import { ReactNode, useRef } from 'react';
 import useInputError from '../../utils/hooks/useInputError';
 import InputField from './InputField';
-import { StringKeys, Validator } from '../../types/types';
+import { SignUpFields, Validator } from '../../types/types';
 import Field from '../../utils/classes/Field';
 
-interface FormProps<K extends { [key: string]: string }> {
-  fields: Field<StringKeys<K>>[];
-  inputValues: Record<keyof K, string>;
-  validators: Record<keyof K, Validator>;
+interface FormProps<K extends string> {
+  fields: Field<K>[];
+  inputValues: Record<K, string>;
+  validators: Record<K, Validator>;
   btns: ReactNode | ReactNode[];
   classNames: string;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  submitAction: (() => Promise<void>) | (() => void);
+  submitAction: (
+    setInputError: React.Dispatch<React.SetStateAction<Record<K, string>>>
+  ) => () => Promise<void>;
   cleanUp?: () => void;
   close: () => void;
 }
@@ -26,17 +28,11 @@ export default function Form({
   submitAction,
   cleanUp,
   close,
-}: FormProps<{
-  username: string;
-  password: string;
-  confirmPassword: string;
-}>) {
+}: FormProps<SignUpFields[number]>) {
   const formRef = useRef<HTMLFormElement>(null);
   const fieldNames = fields.map((f) => f.name as string);
-  const { inputError, validateInput, submitForm } = useInputError(
-    fieldNames,
-    validators
-  );
+  const { inputError, setInputError, validateInput, submitForm } =
+    useInputError(fieldNames, validators);
 
   return (
     <form
@@ -44,7 +40,7 @@ export default function Form({
       autoComplete="nope"
       onSubmit={async (e) => {
         cleanUp = cleanUp || close;
-        await submitForm(e, inputValues, submitAction, cleanUp);
+        await submitForm(e, inputValues, submitAction(setInputError), cleanUp);
       }}
       className={classNames}
     >

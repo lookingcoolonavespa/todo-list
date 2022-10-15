@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { Validator } from '../../types/types';
 
-export default function useInputError(
-  inputNames: string[],
-  validators: {
-    [K in typeof inputNames[number]]: Validator;
-  }
+export default function useInputError<T extends string>(
+  inputNames: T[],
+  validators: Record<T, Validator>
 ) {
   const [inputError, setInputError] = useState(
     () =>
@@ -15,7 +13,7 @@ export default function useInputError(
       }, {}) // turn inputNames into object keys
   );
 
-  function validateInput(name: keyof typeof inputError, value: string) {
+  function validateInput(name: T, value: string) {
     const validationStatus = validators[name](value);
 
     const error = validationStatus.error;
@@ -29,9 +27,7 @@ export default function useInputError(
 
   async function submitForm(
     e: React.FormEvent<HTMLFormElement>,
-    inputValues: {
-      [K in typeof inputNames[number]]: string;
-    },
+    inputValues: Record<T, string>,
     submitAction: (() => Promise<void>) | (() => void),
     cleanUp: () => void
   ) {
@@ -50,5 +46,5 @@ export default function useInputError(
     cleanUp();
   }
 
-  return { inputError, validateInput, submitForm };
+  return { inputError, setInputError, validateInput, submitForm };
 }

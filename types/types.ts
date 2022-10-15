@@ -2,6 +2,7 @@ import { subsections } from '../utils/constants';
 import Project from '../utils/classes/Project';
 import Todo from '../utils/classes/Todo';
 import { Dispatch as ReactDispatch } from 'react';
+import { signUpFields } from '../utils/constants';
 
 export type SubsectionType = typeof subsections[number];
 
@@ -34,3 +35,5 @@ export type Validator = (
 ) => { error: string };
 
 export type StringKeys<I> = Extract<keyof I, string>;
+
+export type SignUpFields = typeof signUpFields[number];

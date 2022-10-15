@@ -1,15 +1,17 @@
 import { CustomValidator } from 'express-validator';
 import { Validator } from '../types/types';
-import { Pool } from 'pg';
+import { PoolClient } from 'pg';
 
 export const isUsernameInUse =
-  (db: Pool): CustomValidator =>
-  async (username) => {
-    const user = await db.query(
+  (client: PoolClient): CustomValidator =>
+  async (username: string) => {
+    const user = await client.query(
       `Select * FROM users WHERE username = '${username}';`
     );
 
-    return user ? Promise.reject('username in use') : Promise.resolve();
+    return user.rows.length
+      ? Promise.reject('username in use')
+      : Promise.resolve();
   };
 
 export const doPasswordsMatch: CustomValidator = async (value, { req }) =>

@@ -6,16 +6,35 @@ import validateMiddleware from '../../utils/validateMiddleware';
 import { isUsernameInUse } from '../../utils/validators';
 import { hash } from 'bcryptjs';
 import { randomUUID } from 'crypto';
+import { PoolClient } from 'pg';
+import { LoggedInUser } from '../../types/interfaces';
+import { withIronSessionApiRoute } from 'iron-session/next';
+import { sessionOptions } from '../../utils/session';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+let client: PoolClient | undefined;
+
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const pool = connectToPool();
-  const client = await pool.connect();
+  client = client || (await pool.connect());
 
   switch (req.method) {
     case 'GET': {
+      if (req.session.user) {
+        // const data = await client.query(
+        //   'Select users.username, projects.id, projects.title FROM users JOIN projects ON id = userid'
+        // );
+        // console.log(data);
+
+        res.json({
+          ...req.session.user,
+          loggedIn: true,
+        });
+      } else {
+        return res.json({
+          loggedIn: false,
+          id: '',
+        });
+      }
       break;
     }
     case 'POST': {
@@ -42,23 +61,30 @@ export default async function handler(
         }
 
         const hashed = await hash(req.body.password, 10);
+        const uuid = randomUUID();
         await client.query(
-          `INSERT INTO users (id, username, password) VALUES ('${randomUUID()}', '${
-            req.body.username
-          }', '${hashed}')`
+          `INSERT INTO users (id, username, password) VALUES ('${uuid}', '${req.body.username}', '${hashed}')`
         );
 
-        return res.status(200).end();
+        const user: LoggedInUser = {
+          id: uuid,
+          loggedIn: true,
+        };
+        req.session.user = user;
+        await req.session?.save();
 
-        break;
+        return res.status(200).json({}).end();
       } catch (err) {
         console.log(err);
-        return res.status(422).json({ errors: err });
+        return res.status(500).json({ errors: err });
       } finally {
-        client.release();
+        client.release(true);
+        client = undefined;
       }
     }
     default:
       return res.status(405);
   }
 }
+
+export default withIronSessionApiRoute(handler, sessionOptions);

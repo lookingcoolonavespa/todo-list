@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 
-let cachedPool: any;
+let cachedPool: Pool;
 
 export function connectToPool() {
   if (!cachedPool) cachedPool = new Pool();
