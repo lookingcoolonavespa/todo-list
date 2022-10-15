@@ -7,16 +7,23 @@ import ProjectClass from '../utils/classes/Project';
 import TodoClass from '../utils/classes/Todo';
 import { withIronSessionSsr } from 'iron-session/next';
 import { sessionOptions } from '../utils/session';
-import { LoggedInUser, User } from '../types/interfaces';
-import { randomUUID } from 'crypto';
-
-const defaultProject = new ProjectClass('first project');
+import { HydratedUser, LoggedInUser, User } from '../types/interfaces';
+import Pusher from 'pusher-js';
+import { v4 as uuid } from 'uuid';
+import normalizeDate from '../utils/normalizeDate';
+import { DateStr } from '../types/types';
+import axios from 'axios';
 
 export const getServerSideProps = withIronSessionSsr(async ({ req, res }) => {
-  if (req.session.user)
-    return {
-      props: { user: req.session.user },
-    };
+  if (req.session.user) {
+    const response = await axios.get(`/api/users/${req.session.user.id}`);
+    if (response.status === 200) {
+      const user = response.data;
+      return {
+        props: { user: req.session.user },
+      };
+    }
+  }
 
   res.setHeader('location', '/login');
   res.statusCode = 302;
@@ -28,15 +35,20 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, res }) => {
   };
 }, sessionOptions);
 
-const Home: NextPage = () => {
+interface HomeProps {
+  user: HydratedUser;
+}
+
+const Home: NextPage<HomeProps> = ({ user }) => {
   interface State {
     projectList: ProjectClass[];
     todoList: TodoClass[];
   }
   const [{ projectList }, dispatch] = useReducer(reducer, {
-    projectList: [defaultProject],
+    projectList: [],
     todoList: [],
   });
+
   function reducer(
     state: State,
     action:
@@ -158,15 +170,48 @@ const Home: NextPage = () => {
     };
   }
 
-  const [activeProject, setActiveProject] = useState(defaultProject.id);
+  const [activeProject, setActiveProject] = useState('');
 
-  useEffect(function addDefaultTodo() {
-    dispatch({
-      type: 'add',
-      itemType: 'todo',
-      payload: new TodoClass(defaultProject.id, 'rule the world', new Date()),
+  useEffect(function connectToPusher() {
+    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY as string, {
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
     });
-  }, []);
+
+    const channel = pusher.subscribe(user.id);
+
+    channel.bind('add-project', (data: { title: string; id: string }) => {
+      dispatch({
+        type: 'add',
+        itemType: 'project',
+        payload: new ProjectClass(data.id, data.title),
+      });
+    });
+
+    channel.bind(
+      'add-todo',
+      (data: {
+        title: string;
+        id: string;
+        project: string;
+        dueDate: DateStr;
+      }) => {
+        dispatch({
+          type: 'add',
+          itemType: 'todo',
+          payload: new TodoClass(
+            data.id,
+            data.project,
+            data.title,
+            data.dueDate
+          ),
+        });
+      }
+    );
+
+    return () => {
+      pusher.unsubscribe(user.id);
+    };
+  });
 
   return (
     <UserContext.Provider
@@ -175,6 +220,7 @@ const Home: NextPage = () => {
         dispatch,
         activeProject,
         setActiveProject,
+        user,
       }}
     >
       <div className="flex flex-row min-h-screen main-bg">

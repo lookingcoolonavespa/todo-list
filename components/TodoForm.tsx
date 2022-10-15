@@ -6,9 +6,15 @@ import ArrowSvg from './svg/ArrowSvg';
 import normalizeDate from '../utils/normalizeDate';
 import Todo from '../utils/classes/Todo';
 import useTodoDetails from '../utils/hooks/useTodoDetails';
+import { v4 as uuid } from 'uuid';
+import axios from 'axios';
 
 export default function TodoForm() {
-  const { projectList, activeProject, dispatch } = useContext(UserContext);
+  const {
+    projectList,
+    activeProject,
+    user: { id: userid },
+  } = useContext(UserContext);
 
   const [visible, setVisible] = useState(true);
 
@@ -36,27 +42,29 @@ export default function TodoForm() {
         } overflow-hidden rounded transition-all shadow-md ${
           visible ? 'max-h-52' : 'max-h-0'
         }`}
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
 
           if (
             !todoDetails.title ||
             !todoDetails.dueDate ||
-            typeof todoDetails.project !== 'number'
+            !projectList.find((p) => p.id === todoDetails.project)
           )
             return;
 
-          dispatch({
-            type: 'add',
-            itemType: 'todo',
-            payload: new Todo(
-              todoDetails.project,
-              todoDetails.title,
-              new Date(todoDetails.dueDate)
-            ),
-          });
+          try {
+            const res = await axios.post('/api/todos', {
+              userid,
+              dueDate: todoDetails.dueDate,
+              project: todoDetails.project,
+              title: todoDetails.title,
+              id: uuid(),
+            });
 
-          reset();
+            if ((res.status = 200)) reset();
+          } catch (err) {
+            console.log(err);
+          }
         }}
       >
         <div className="flex flex-col gap-y-3 py-6 px-8">

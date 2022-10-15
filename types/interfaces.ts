@@ -11,3 +11,13 @@ export interface LoggedInUser {
   id: string;
   loggedIn: boolean;
 }
+
+export interface HydratedUser {
+  id: string;
+  projects: Project[];
+  todos: Todo[];
+}
+
+export interface RequestError extends Error {
+  status: number;
+}

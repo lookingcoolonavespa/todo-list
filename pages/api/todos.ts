@@ -18,7 +18,7 @@ export default async function handler(
 
   switch (req.method) {
     case 'POST': {
-      // create a project
+      // create a todo
       try {
         await initMiddleware(
           validateMiddleware([
@@ -38,6 +38,24 @@ export default async function handler(
               if (result) throw new Error('no user exists with that id');
               return true;
             }),
+            body('dueDate')
+              .trim()
+              .notEmpty()
+              .withMessage('due date is missing')
+              .matches(/[0-9]{4}-[0-9]{2}-[0-9]{2}/)
+              .withMessage('due date is not in the correct format'),
+            body('project').custom(async function isProjectValid(
+              project: string
+            ) {
+              const result = await isValueUnique(
+                client as PoolClient,
+                project,
+                'projects',
+                'id'
+              );
+              if (result) throw new Error('no project exists with that id');
+              return true;
+            }),
           ])
         )(req, res);
 
@@ -47,12 +65,13 @@ export default async function handler(
         }
 
         await client.query(
-          `INSERT INTO projects (id, title, userid) VALUES ('${req.body.id}', '${req.body.title}', '${req.body.userid}')`
+          `INSERT INTO todos (id, title, userid, project, dueDate) VALUES ('${req.body.id}', '${req.body.title}', '${req.body.userid}', '${req.body.project}, '${req.body.dueDate})`
         );
 
-        await emitPusherEvent(res, req.body.userid, 'add-project', {
+        await emitPusherEvent(res, req.body.userid, 'add-todo', {
           id: req.body.id,
           title: req.body.title,
+          project: req.body.project,
         });
 
         return res.status(200).end();

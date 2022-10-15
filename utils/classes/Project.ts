@@ -1,4 +1,3 @@
-import { uuid } from 'uuidv4';
 import Todo from './Todo';
 
 export default class Project {
@@ -6,8 +5,8 @@ export default class Project {
   title: string;
   todoList: Todo[];
 
-  constructor(title: string) {
-    this.id = uuid();
+  constructor(id: string, title: string) {
+    this.id = id;
     this.title = title;
     this.todoList = [];
   }

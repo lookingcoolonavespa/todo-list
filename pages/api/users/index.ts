@@ -22,25 +22,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   client = client || (await pool.connect());
 
   switch (req.method) {
-    case 'GET': {
-      if (req.session.user) {
-        // const data = await client.query(
-        //   'Select users.username, projects.id, projects.title FROM users JOIN projects ON id = userid'
-        // );
-        // console.log(data);
-
-        res.json({
-          ...req.session.user,
-          loggedIn: true,
-        });
-      } else {
-        return res.json({
-          loggedIn: false,
-          id: '',
-        });
-      }
-      break;
-    }
     case 'POST': {
       try {
         await initMiddleware(
@@ -107,7 +88,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       }
     }
     default:
-      return res.status(405);
+      return res.status(405).send('no user logged in');
   }
 }
 

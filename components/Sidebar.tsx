@@ -3,7 +3,8 @@ import UserContext from '../utils/contexts/UserContext';
 import Project from '../utils/classes/Project';
 import InputBox from './misc/InputBox';
 import Subtitle from './misc/Subtitle';
-interface SidebarProps {}
+import axios from 'axios';
+import { v4 as uuid } from 'uuid';
 
 export default function Sidebar() {
   const { projectList } = useContext(UserContext);
@@ -36,22 +37,29 @@ function ProjectBtn({ title, id }: Project) {
 function ProjectForm() {
   const [title, setTitle] = useState('');
 
-  const { dispatch } = useContext(UserContext);
+  const {
+    user: { id: userid },
+  } = useContext(UserContext);
 
   return (
     <form
       className="flex flex-col"
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
 
         if (!title) return;
-        dispatch({
-          itemType: 'project',
-          type: 'add',
-          payload: new Project(title),
-        });
 
-        setTitle('');
+        try {
+          const res = await axios.post('/api/projects', {
+            title,
+            userid,
+            id: uuid(),
+          });
+
+          if ((res.status = 200)) setTitle('');
+        } catch (err) {
+          console.log(err);
+        }
       }}
     >
       <Subtitle title="Add a new project" className="mb-3" />
