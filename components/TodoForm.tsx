@@ -20,7 +20,7 @@ export default function TodoForm() {
 
   const { todoDetails, onChange, reset } = useTodoDetails({
     title: '',
-    dueDate: normalizeDate(new Date()),
+    due_date: normalizeDate(new Date()),
     project: activeProject,
   });
 
@@ -47,7 +47,7 @@ export default function TodoForm() {
 
           if (
             !todoDetails.title ||
-            !todoDetails.dueDate ||
+            !todoDetails.due_date ||
             !projectList.find((p) => p.id === todoDetails.project)
           )
             return;
@@ -55,7 +55,7 @@ export default function TodoForm() {
           try {
             const res = await axios.post('/api/todos', {
               userid,
-              dueDate: todoDetails.dueDate,
+              due_date: todoDetails.due_date,
               project: todoDetails.project,
               title: todoDetails.title,
               id: uuid(),
@@ -82,8 +82,8 @@ export default function TodoForm() {
             <div className="flex gap-x-3">
               <input
                 type="date"
-                name="dueDate"
-                value={todoDetails.dueDate}
+                name="due_date"
+                value={todoDetails.due_date}
                 className="bg-transparent cursor-pointer"
                 onChange={onChange}
               />
@@ -95,7 +95,7 @@ export default function TodoForm() {
               >
                 {projectList.map((p) => {
                   return (
-                    <option key={p.id} value={p.id} className="text-white">
+                    <option key={p.id} value={p.id}>
                       {p.title}
                     </option>
                   );

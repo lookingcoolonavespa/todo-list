@@ -1,6 +1,7 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
+import Router from 'next/router';
 import { ChangeEvent, useState } from 'react';
 import DuoBtnsLink from '../components/misc/DuoBtnsLink';
 import Form from '../components/misc/Form';
@@ -44,16 +45,25 @@ const Login: NextPage = () => {
           password: checkPassword,
         }}
         handleInputChange={handleInputChange}
-        submitAction={async () => {
+        submitAction={(setInputError) => async () => {
           try {
-            const data = await axios.post('http://localhost:3000/api/user', {
+            await axios.post('http://localhost:3000/api/users/login', {
               username: inputValues.username,
               password: inputValues.password,
             });
 
-            console.log(data);
+            Router.push('/');
           } catch (err) {
-            console.log(err);
+            const error = err as AxiosError;
+            if (!error) return;
+            if (error.response?.status === 401) {
+              setInputError((prev) => {
+                return {
+                  ...prev,
+                  username: 'username does not match password',
+                };
+              });
+            }
           }
         }}
         btns={

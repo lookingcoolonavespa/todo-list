@@ -75,6 +75,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         const user: LoggedInUser = {
           id: uuid,
           loggedIn: true,
+          username: req.body.username,
         };
         req.session.user = user;
         await req.session?.save();

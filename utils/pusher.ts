@@ -20,7 +20,7 @@ async function emitPusherEvent(
     await pusher.trigger(channel, event, payload);
   } catch (err) {
     const error = err as RequestError;
-    return res.status(error.status).send(error.message);
+    return res.status(500).send(error.message);
   }
 }
 

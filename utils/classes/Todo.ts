@@ -4,14 +4,15 @@ export default class Todo {
   id: string;
   project: string;
   title: string;
-  dueDate: DateStr;
+  due_date: DateStr;
   completed: boolean;
 
-  constructor(id: string, project: string, title: string, dueDate: DateStr) {
+  constructor(id: string, project: string, title: string, due_date: DateStr) {
+    console.log(due_date);
     this.id = id;
     this.project = project;
     this.title = title;
-    this.dueDate = dueDate;
+    this.due_date = due_date;
     this.completed = false;
   }
 }

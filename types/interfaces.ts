@@ -7,15 +7,12 @@ export interface User {
   password: string;
 }
 
-export interface LoggedInUser {
+export interface UserData {
   id: string;
   loggedIn: boolean;
-}
-
-export interface HydratedUser {
-  id: string;
-  projects: Project[];
-  todos: Todo[];
+  username: string;
+  projects: string;
+  todos: string;
 }
 
 export interface RequestError extends Error {

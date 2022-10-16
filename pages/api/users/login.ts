@@ -15,23 +15,25 @@ async function loginRoute(req: NextApiRequest, res: NextApiResponse) {
 
   try {
     const data = await client.query<User>(
-      `Select id, password FROM users WHERE username = '${username}';`
+      `Select id, username, password FROM users WHERE username = '${username}';`
     );
     const user = data.rows[0];
+    if (!user) throw new Error();
 
     const result = await bcrypt.compare(password, user.password);
     if (result) {
       req.session.user = {
+        username: user.username,
         loggedIn: true,
         id: user.id,
       };
       await req.session.save();
-      res.json(user);
+      res.status(200).end();
     } else {
-      return res.status(401).send('incorrect credentials');
+      throw new Error('incorrect credentials');
     }
   } catch (err) {
-    return res.status(500).json(err);
+    return res.status(401).send('incorrect credentials');
   }
 }
 

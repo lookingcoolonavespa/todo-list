@@ -6,6 +6,8 @@ import normalizeDate from '../utils/normalizeDate';
 import DuoBtnsText from './misc/DuoBtnsText';
 import Functions from './misc/Functions';
 import InputBox from './misc/InputBox';
+import axios from 'axios';
+import { v4 as uuid } from 'uuid';
 
 interface TodoListProps {
   list: TodoInterface[];
@@ -21,8 +23,8 @@ export default function TodoList({ list }: TodoListProps) {
   );
 }
 
-function Todo({ id, title, dueDate, completed, project }: TodoInterface) {
-  const { dispatch, projectList } = useContext(UserContext);
+function Todo({ id, title, due_date, completed, project }: TodoInterface) {
+  const { projectList } = useContext(UserContext);
 
   const [edit, setEdit] = useState(false);
 
@@ -30,7 +32,7 @@ function Todo({ id, title, dueDate, completed, project }: TodoInterface) {
     title,
     completed,
     project,
-    dueDate: normalizeDate(dueDate),
+    due_date: due_date,
   });
 
   const rootClasses = 'flex gap-x-4 border-b-[1px] py-4 first:border-t-[1px]';
@@ -53,15 +55,17 @@ function Todo({ id, title, dueDate, completed, project }: TodoInterface) {
           <section className="flex-1">
             <div>{title}</div>
             <div className="bottom-row flex justify-between items-baseline">
-              <div>Due : {normalizeDate(dueDate)}</div>
+              <div>Due : {due_date}</div>
               <Functions
                 editCb={() => setEdit(true)}
-                trashCb={() => {
-                  dispatch({
-                    type: 'delete',
-                    itemType: 'todo',
-                    payload: { id, project },
-                  });
+                trashCb={async () => {
+                  try {
+                    const res = await axios.delete(`/api/todos/${id}`);
+
+                    if ((res.status = 200)) setEdit(false);
+                  } catch (err) {
+                    console.log(err);
+                  }
                 }}
               />
             </div>
@@ -70,20 +74,21 @@ function Todo({ id, title, dueDate, completed, project }: TodoInterface) {
       ) : (
         <form
           className={rootClasses}
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
 
-            dispatch({
-              type: 'edit',
-              itemType: 'todo',
-              payload: {
-                ...todoDetails,
-                id,
-                dueDate: new Date(todoDetails.dueDate),
-              },
-            });
+            try {
+              const res = await axios.put(`/api/todos/${id}`, {
+                due_date: todoDetails.due_date,
+                project: todoDetails.project,
+                title: todoDetails.title,
+                completed: todoDetails.completed,
+              });
 
-            setEdit(false);
+              if ((res.status = 200)) setEdit(false);
+            } catch (err) {
+              console.log(err);
+            }
           }}
         >
           <section className="relative">
@@ -112,8 +117,8 @@ function Todo({ id, title, dueDate, completed, project }: TodoInterface) {
                 Due :{' '}
                 <input
                   type="date"
-                  name="dueDate"
-                  value={todoDetails.dueDate}
+                  name="due_date"
+                  value={todoDetails.due_date}
                   onChange={onChange}
                   className="bg-transparent cursor-pointer"
                 />

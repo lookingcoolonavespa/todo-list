@@ -26,20 +26,16 @@ function ProjectBtn({ title, id }: Project) {
   return (
     <button
       type="button"
-      className="bg-slate-700 py-2 rounded hover:bg-slate-600"
+      className="bg-slate-700 py-2 px-3 rounded overflow-hidden hover:bg-slate-600"
       onClick={() => setActiveProject && setActiveProject(id)}
     >
-      {title}
+      <div className="overflow-hidden">{title}</div>
     </button>
   );
 }
 
 function ProjectForm() {
   const [title, setTitle] = useState('');
-
-  const {
-    user: { id: userid },
-  } = useContext(UserContext);
 
   return (
     <form
@@ -52,11 +48,10 @@ function ProjectForm() {
         try {
           const res = await axios.post('/api/projects', {
             title,
-            userid,
             id: uuid(),
           });
 
-          if ((res.status = 200)) setTitle('');
+          if (res.status === 200) setTitle('');
         } catch (err) {
           console.log(err);
         }

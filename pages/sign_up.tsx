@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import axios, { AxiosError } from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import Router from 'next/router';

@@ -17,7 +17,6 @@ export default function useTodoDetails<T, K extends keyof T>(init: T) {
   ) {
     switch (action.type) {
       case 'change': {
-        console.log({ ...state, [action.detail]: action.payload });
         return { ...state, [action.detail]: action.payload };
       }
 
@@ -27,7 +26,6 @@ export default function useTodoDetails<T, K extends keyof T>(init: T) {
   }
   function onChange(e: ChangeEvent) {
     const el = e.target as HTMLInputElement | HTMLSelectElement;
-    console.log(el.name, el.value);
     dispatch({
       type: 'change',
       detail: el.name as K,
