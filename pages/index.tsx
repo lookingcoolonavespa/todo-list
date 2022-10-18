@@ -18,7 +18,11 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, res }) => {
   if (req.session.user?.loggedIn) {
     try {
       const response = await axios.get(
-        `${process.env.BASE_URL}/api/users/${req.session.user.id}`
+        `${
+          process.env.NODE_ENV === 'production'
+            ? process.env.VERCEL_URL
+            : process.env.BASE_URL
+        }/api/users/${req.session.user.id}`
       );
       const data = response.data.rows;
 
