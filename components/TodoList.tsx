@@ -57,7 +57,6 @@ function Todo({ id, title, due_date, completed, project }: TodoInterface) {
                 editCb={() => setEdit(true)}
                 trashCb={async () => {
                   try {
-                    console.log(id);
                     const res = await axios.delete(`/api/todos/${id}`);
 
                     if (res.status === 200) {
@@ -82,8 +81,6 @@ function Todo({ id, title, due_date, completed, project }: TodoInterface) {
             e.preventDefault();
 
             try {
-              console.log(id);
-
               const res = await axios.put(`/api/todos/${id}`, {
                 ...todoDetails,
               });

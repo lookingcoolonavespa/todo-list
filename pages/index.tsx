@@ -17,9 +17,7 @@ import NavBar from '../components/NavBar';
 export const getServerSideProps = withIronSessionSsr(async ({ req, res }) => {
   if (req.session.user?.loggedIn) {
     try {
-      const response = await axios.get(
-        `http:localhost:3000/api/users/${req.session.user.id}`
-      );
+      const response = await axios.get(`/api/users/${req.session.user.id}`);
       const data = response.data.rows;
 
       interface Row {

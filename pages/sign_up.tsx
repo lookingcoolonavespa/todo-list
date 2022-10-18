@@ -53,7 +53,7 @@ const Sign_Up: NextPage = () => {
           ) =>
           async () => {
             try {
-              const res = await axios.post('http://localhost:3000/api/users', {
+              const res = await axios.post('/api/users', {
                 username: inputValues.username,
                 password: inputValues.password,
               });

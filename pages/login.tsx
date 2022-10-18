@@ -46,7 +46,7 @@ const Login: NextPage = () => {
         handleInputChange={handleInputChange}
         submitAction={(setInputError) => async () => {
           try {
-            await axios.post('http://localhost:3000/api/users/login', {
+            await axios.post('/api/users/login', {
               username: inputValues.username,
               password: inputValues.password,
             });
