@@ -17,6 +17,13 @@ import NavBar from '../components/NavBar';
 export const getServerSideProps = withIronSessionSsr(async ({ req, res }) => {
   if (req.session.user?.loggedIn) {
     try {
+      console.log(
+        `${
+          process.env.NODE_ENV === 'production'
+            ? process.env.VERCEL_URL
+            : process.env.BASE_URL
+        }/api/users/${req.session.user.id}`
+      );
       const response = await axios.get(
         `${
           process.env.NODE_ENV === 'production'
@@ -80,6 +87,7 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, res }) => {
         },
       };
     } catch (err) {
+      console.log(err);
       return {
         redirect: {
           permanent: false,
