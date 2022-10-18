@@ -57,7 +57,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           return res.status(422).json({ errors: errors.array() });
         }
 
-        console.log({ ...req.body, id: req.query.id });
         await client.query(
           `UPDATE ${process.env.SCHEMA}.todos SET title = '${req.body.title}', project = '${req.body.project}', completed = '${req.body.completed}', due_date = '${req.body.due_date}' WHERE id = '${req.query.id}';`
         );

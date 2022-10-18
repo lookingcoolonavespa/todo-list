@@ -71,12 +71,3 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 }
 
 export default withIronSessionApiRoute(handler, sessionOptions);
-
-/*
-  due_date: '2022-10-16',
-  project: 'ab538609-415d-46de-ace4-b11ca3689c31',
-  title: 'added twice',
-  completed: false
-
-  UPDATE todos SET title = 'added twice', project = 'ab538609-415d-46de-ace4-b11ca3689c31', due_date = '2022-10-16' WHERE id = 'c96fa872-acce-4086-af1e-d8e6a7816794';
-*/

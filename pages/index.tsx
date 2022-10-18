@@ -1,5 +1,5 @@
-import type { NextApiRequest, NextApiResponse, NextPage } from 'next';
-import { useState, useReducer, useEffect } from 'react';
+import type { NextPage } from 'next';
+import { useState, useReducer } from 'react';
 import Project from '../components/Project';
 import Sidebar from '../components/Sidebar';
 import UserContext from '../utils/contexts/UserContext';
@@ -8,7 +8,6 @@ import TodoClass from '../utils/classes/Todo';
 import { withIronSessionSsr } from 'iron-session/next';
 import { sessionOptions } from '../utils/session';
 import { UserData } from '../types/interfaces';
-import Pusher from 'pusher-js';
 import { DateStr, DispatchArgs } from '../types/types';
 import axios from 'axios';
 import Router from 'next/router';
@@ -233,7 +232,6 @@ const Home: NextPage<HomeProps> = ({ user }) => {
       todoList,
     };
   }
-  console.log(projectList);
 
   return (
     <UserContext.Provider

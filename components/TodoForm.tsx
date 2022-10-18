@@ -6,7 +6,6 @@ import ArrowSvg from './svg/ArrowSvg';
 import normalizeDate from '../utils/normalizeDate';
 import Todo from '../utils/classes/Todo';
 import useTodoDetails from '../utils/hooks/useTodoDetails';
-import { v4 as uuid } from 'uuid';
 import axios from 'axios';
 
 export default function TodoForm() {
