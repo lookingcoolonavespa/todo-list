@@ -12,9 +12,11 @@ let client: PoolClient | undefined;
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!req.session.user || !req.session.user.loggedIn) return res.status(401);
 
+  const startTime = Date.now();
   const pool = connectToPool();
   client = client || (await pool.connect());
 
+  console.log('after connecting', Date.now() - startTime);
   switch (req.method) {
     case 'POST': {
       // create a project
@@ -30,6 +32,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           ])
         )(req, res);
 
+        console.log('after validating', Date.now() - startTime);
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
           return res.status(422).json({ errors: errors.array() });
@@ -39,6 +42,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           `INSERT INTO ${process.env.SCHEMA}.projects (title, userid) VALUES ('${req.body.title}', '${req.session.user.id}') RETURNING id;`
         );
 
+        console.log('after query', Date.now() - startTime);
         return res.status(200).send(output.rows[0].id);
       } catch (err) {
         res.status(500).json(err);

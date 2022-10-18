@@ -17,18 +17,11 @@ import NavBar from '../components/NavBar';
 export const getServerSideProps = withIronSessionSsr(async ({ req, res }) => {
   if (req.session.user?.loggedIn) {
     try {
-      console.log(
-        `${
-          process.env.NODE_ENV === 'production'
-            ? 'https://' + process.env.VERCEL_URL
-            : process.env.BASE_URL
-        }/api/users/${req.session.user.id}`
-      );
       const response = await axios.get(
         `${
           process.env.NODE_ENV === 'production'
             ? 'https://' + process.env.VERCEL_URL
-            : process.env.BASE_URL
+            : process.env.NODE_PUBLIC_BASE_URL
         }/api/users/${req.session.user.id}`
       );
       const data = response.data.rows;
