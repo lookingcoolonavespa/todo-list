@@ -1,11 +1,9 @@
-// this file is a wrapper with defaults to be used in both API routes and `getServerSideProps` functions
 import type { IronSessionOptions } from 'iron-session';
 import { UserData } from '../types/interfaces';
 
 export const sessionOptions: IronSessionOptions = {
   password: process.env.SECRET_COOKIE_PASSWORD as string,
-  cookieName: 'iron-session/examples/next.js',
-  // secure: true should be used in production (HTTPS) but can't be used in development (HTTP)
+  cookieName: 'todo-list',
   cookieOptions: {
     secure: process.env.NODE_ENV === 'production',
   },

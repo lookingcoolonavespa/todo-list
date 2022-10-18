@@ -2,12 +2,10 @@ import { useContext, useState } from 'react';
 import TodoInterface from '../utils/classes/Todo';
 import UserContext from '../utils/contexts/UserContext';
 import useTodoDetails from '../utils/hooks/useTodoDetails';
-import normalizeDate from '../utils/normalizeDate';
 import DuoBtnsText from './misc/DuoBtnsText';
 import Functions from './misc/Functions';
 import InputBox from './misc/InputBox';
 import axios from 'axios';
-import { v4 as uuid } from 'uuid';
 
 interface TodoListProps {
   list: TodoInterface[];
@@ -24,15 +22,14 @@ export default function TodoList({ list }: TodoListProps) {
 }
 
 function Todo({ id, title, due_date, completed, project }: TodoInterface) {
-  const { projectList } = useContext(UserContext);
-
+  const { dispatch, projectList } = useContext(UserContext);
   const [edit, setEdit] = useState(false);
 
   const { todoDetails, onChange, reset } = useTodoDetails({
     title,
     completed,
     project,
-    due_date: due_date,
+    due_date,
   });
 
   const rootClasses = 'flex gap-x-4 border-b-[1px] py-4 first:border-t-[1px]';
@@ -60,9 +57,16 @@ function Todo({ id, title, due_date, completed, project }: TodoInterface) {
                 editCb={() => setEdit(true)}
                 trashCb={async () => {
                   try {
+                    console.log(id);
                     const res = await axios.delete(`/api/todos/${id}`);
 
-                    if ((res.status = 200)) setEdit(false);
+                    if (res.status === 200) {
+                      dispatch({
+                        type: 'delete',
+                        itemType: 'todo',
+                        payload: { id },
+                      });
+                    }
                   } catch (err) {
                     console.log(err);
                   }
@@ -78,14 +82,21 @@ function Todo({ id, title, due_date, completed, project }: TodoInterface) {
             e.preventDefault();
 
             try {
+              console.log(id);
+
               const res = await axios.put(`/api/todos/${id}`, {
-                due_date: todoDetails.due_date,
-                project: todoDetails.project,
-                title: todoDetails.title,
-                completed: todoDetails.completed,
+                ...todoDetails,
               });
 
-              if ((res.status = 200)) setEdit(false);
+              if (res.status === 200) {
+                dispatch({
+                  type: 'edit',
+                  itemType: 'todo',
+                  payload: { id, ...todoDetails },
+                });
+
+                setEdit(false);
+              }
             } catch (err) {
               console.log(err);
             }

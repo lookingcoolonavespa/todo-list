@@ -19,7 +19,7 @@ export default function DuoBtnsLink({
         {leftText}
       </button>
       <Link href={href}>
-        <button type="button" className="underline_on_hover rect-btn">
+        <button type="button" className="underline-on-hover rect-btn">
           {rightText}
         </button>
       </Link>

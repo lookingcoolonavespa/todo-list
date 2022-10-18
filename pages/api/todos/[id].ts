@@ -5,7 +5,6 @@ import initMiddleware from '../../../utils/initMiddleware';
 import validateMiddleware from '../../../utils/validateMiddleware';
 import { isValueUnique } from '../../../utils/validators';
 import { PoolClient } from 'pg';
-import emitPusherEvent from '../../../utils/pusher';
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { sessionOptions } from '../../../utils/session';
 
@@ -18,14 +17,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   switch (req.method) {
     case 'PUT': {
-      const { id } = req.query;
       try {
         await initMiddleware(
           validateMiddleware([
             body('title')
               .trim()
               .notEmpty()
-              .withMessage('project title is missing')
+              .withMessage('todo title is missing')
               .isLength({ max: 40 })
               .withMessage('title is too long bruh'),
             body('due_date')
@@ -59,17 +57,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           return res.status(422).json({ errors: errors.array() });
         }
 
+        console.log({ ...req.body, id: req.query.id });
         await client.query(
-          `UPDATE todos SET title = '${req.body.title}', project = '${req.body.project}', due_date = '${req.body.due_date}' WHERE id = '${id}';`
+          `UPDATE ${process.env.SCHEMA}.todos SET title = '${req.body.title}', project = '${req.body.project}', completed = '${req.body.completed}', due_date = '${req.body.due_date}' WHERE id = '${req.query.id}';`
         );
-
-        await emitPusherEvent(res, req.session.user.id, 'edit-todo', {
-          id: id,
-          title: req.body.title,
-          project: req.body.project,
-          due_date: req.body.due_date,
-          completed: req.body.completed,
-        });
 
         return res.status(200).end();
       } catch (err) {
@@ -83,11 +74,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     case 'DELETE': {
       try {
-        await client.query(`DELETE FROM todos WHERE id = '${req.query.id}'`);
-
-        await emitPusherEvent(res, req.session.user.id, 'delete-todo', {
-          id: req.query.id,
-        });
+        await client.query(
+          `DELETE FROM ${process.env.SCHEMA}.todos WHERE id = '${req.query.id}'`
+        );
 
         return res.status(200).end();
       } catch (err) {

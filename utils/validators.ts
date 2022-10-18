@@ -12,7 +12,7 @@ export const isValueUnique = async (
   column: string
 ) => {
   const entity = await client.query(
-    `SELECT id FROM ${table} WHERE ${column} = '${value}'`
+    `SELECT id FROM ${process.env.SCHEMA}.${table} WHERE ${column} = '${value}'`
   );
 
   return !entity.rows.length;

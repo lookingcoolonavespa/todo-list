@@ -6,11 +6,19 @@ import { signUpFields } from '../utils/constants';
 
 export type SubsectionType = typeof subsections[number];
 
-export type Dispatch = ReactDispatch<
+export type DispatchArgs =
   | {
-      type: 'add' | 'edit';
+      type: 'add';
       itemType: 'project';
       payload: Project;
+    }
+  | {
+      type: 'edit';
+      itemType: 'project';
+      payload: {
+        id: string;
+        title: string;
+      };
     }
   | {
       type: 'add' | 'edit';
@@ -25,9 +33,9 @@ export type Dispatch = ReactDispatch<
   | {
       type: 'delete';
       itemType: 'todo';
-      payload: { id: string; project: string };
-    }
->;
+      payload: { id: string };
+    };
+export type Dispatch = ReactDispatch<DispatchArgs>;
 
 export type Validator = (
   value: string,

@@ -15,7 +15,7 @@ async function loginRoute(req: NextApiRequest, res: NextApiResponse) {
 
   try {
     const data = await client.query<User>(
-      `Select id, username, password FROM users WHERE username = '${username}';`
+      `Select id, username, password FROM ${process.env.SCHEMA}.users WHERE username = '${username}';`
     );
     const user = data.rows[0];
     if (!user) throw new Error();
@@ -26,6 +26,8 @@ async function loginRoute(req: NextApiRequest, res: NextApiResponse) {
         username: user.username,
         loggedIn: true,
         id: user.id,
+        projects: '',
+        todos: '',
       };
       await req.session.save();
       res.status(200).end();

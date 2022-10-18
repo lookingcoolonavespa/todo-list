@@ -10,11 +10,7 @@ import { v4 as uuid } from 'uuid';
 import axios from 'axios';
 
 export default function TodoForm() {
-  const {
-    projectList,
-    activeProject,
-    user: { id: userid },
-  } = useContext(UserContext);
+  const { dispatch, projectList, activeProject } = useContext(UserContext);
 
   const [visible, setVisible] = useState(true);
 
@@ -54,14 +50,26 @@ export default function TodoForm() {
 
           try {
             const res = await axios.post('/api/todos', {
-              userid,
               due_date: todoDetails.due_date,
               project: todoDetails.project,
               title: todoDetails.title,
-              id: uuid(),
             });
 
-            if ((res.status = 200)) reset();
+            if ((res.status = 200)) {
+              const id = res.data;
+
+              dispatch({
+                type: 'add',
+                itemType: 'todo',
+                payload: new Todo(
+                  id,
+                  todoDetails.project,
+                  todoDetails.title,
+                  todoDetails.due_date
+                ),
+              });
+              reset();
+            }
           } catch (err) {
             console.log(err);
           }

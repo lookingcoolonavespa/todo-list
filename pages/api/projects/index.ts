@@ -3,9 +3,7 @@ import { body, validationResult } from 'express-validator';
 import { connectToPool } from '../../../utils/pool';
 import initMiddleware from '../../../utils/initMiddleware';
 import validateMiddleware from '../../../utils/validateMiddleware';
-import { isValueUnique } from '../../../utils/validators';
 import { PoolClient } from 'pg';
-import emitPusherEvent from '../../../utils/pusher';
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { sessionOptions } from '../../../utils/session';
 
@@ -37,16 +35,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           return res.status(422).json({ errors: errors.array() });
         }
 
-        await client.query(
-          `INSERT INTO projects (id, title, userid) VALUES ('${req.body.id}', '${req.body.title}', '${req.session.user.id}')`
+        const output = await client.query(
+          `INSERT INTO ${process.env.SCHEMA}.projects (title, userid) VALUES ('${req.body.title}', '${req.session.user.id}') RETURNING id;`
         );
 
-        await emitPusherEvent(res, req.body.userid, 'add-project', {
-          id: req.body.id,
-          title: req.body.title,
-        });
-
-        return res.status(200).end();
+        return res.status(200).send(output.rows[0].id);
       } catch (err) {
         res.status(500).json(err);
       } finally {

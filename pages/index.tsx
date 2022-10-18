@@ -9,10 +9,11 @@ import { withIronSessionSsr } from 'iron-session/next';
 import { sessionOptions } from '../utils/session';
 import { UserData } from '../types/interfaces';
 import Pusher from 'pusher-js';
-import { DateStr } from '../types/types';
+import { DateStr, DispatchArgs } from '../types/types';
 import axios from 'axios';
 import Router from 'next/router';
 import Todo from '../utils/classes/Todo';
+import NavBar from '../components/NavBar';
 
 export const getServerSideProps = withIronSessionSsr(async ({ req, res }) => {
   if (req.session.user?.loggedIn) {
@@ -122,35 +123,15 @@ const Home: NextPage<HomeProps> = ({ user }) => {
     todoList: TodoClass[];
   }
 
+  const [activeProject, setActiveProject] = useState(
+    JSON.parse(user.projects)[0]?.id || ''
+  );
   const [{ projectList }, dispatch] = useReducer(reducer, {
     projectList: JSON.parse(user.projects) as ProjectClass[],
     todoList: JSON.parse(user.todos) as TodoClass[],
   });
 
-  function reducer(
-    state: State,
-    action:
-      | {
-          type: 'add' | 'edit';
-          itemType: 'project';
-          payload: ProjectClass;
-        }
-      | {
-          type: 'add' | 'edit';
-          itemType: 'todo';
-          payload: TodoClass;
-        }
-      | {
-          type: 'delete';
-          itemType: 'project';
-          payload: string;
-        }
-      | {
-          type: 'delete';
-          itemType: 'todo';
-          payload: { id: string };
-        }
-  ) {
+  function reducer(state: State, action: DispatchArgs) {
     let { projectList, todoList } = state;
     // handle todos
     if (action.itemType === 'todo') {
@@ -206,7 +187,6 @@ const Home: NextPage<HomeProps> = ({ user }) => {
           });
 
           todoList = todoList.filter((t) => t.id === action.payload.id);
-          console.log('deleted');
           break;
         }
 
@@ -227,7 +207,8 @@ const Home: NextPage<HomeProps> = ({ user }) => {
 
         case 'edit': {
           projectList = projectList.map((p) => {
-            if (p.id === action.payload.id) p = action.payload;
+            if (p.id === action.payload.id)
+              p = { ...p, title: action.payload.title };
             return p;
           });
 
@@ -238,6 +219,7 @@ const Home: NextPage<HomeProps> = ({ user }) => {
           projectList = projectList.filter((p) => p.id !== action.payload);
           todoList = todoList.filter((t) => (t.project = action.payload));
 
+          setActiveProject(projectList[0]?.id || '');
           break;
         }
 
@@ -251,90 +233,27 @@ const Home: NextPage<HomeProps> = ({ user }) => {
       todoList,
     };
   }
-
-  const [activeProject, setActiveProject] = useState(projectList[0].id || '');
-
-  useEffect(function connectToPusher() {
-    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY as string, {
-      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
-    });
-
-    const channel = pusher.subscribe(user.id);
-
-    channel.bind('add-project', (data: { title: string; id: string }) => {
-      dispatch({
-        type: 'add',
-        itemType: 'project',
-        payload: new ProjectClass(data.id, data.title),
-      });
-    });
-
-    channel.bind(
-      'add-todo',
-      (data: {
-        title: string;
-        id: string;
-        project: string;
-        due_date: DateStr;
-      }) => {
-        dispatch({
-          type: 'add',
-          itemType: 'todo',
-          payload: new TodoClass(
-            data.id,
-            data.project,
-            data.title,
-            data.due_date
-          ),
-        });
-      }
-    );
-
-    channel.bind(
-      'edit-todo',
-      (data: {
-        title: string;
-        id: string;
-        project: string;
-        due_date: DateStr;
-        completed: boolean;
-      }) => {
-        dispatch({
-          type: 'edit',
-          itemType: 'todo',
-          payload: data,
-        });
-      }
-    );
-
-    channel.bind('delete-todo', (data: { id: string; project: string }) => {
-      dispatch({
-        type: 'delete',
-        itemType: 'todo',
-        payload: { id: data.id },
-      });
-    });
-
-    return () => {
-      pusher.unsubscribe(user.id);
-    };
-  });
+  console.log(projectList);
 
   return (
     <UserContext.Provider
       value={{
+        dispatch,
         projectList,
         activeProject,
         setActiveProject,
         user,
       }}
     >
-      <div className="flex flex-row min-h-screen main-bg">
-        <Sidebar />
-        <Project
-          details={projectList.find((p) => p.id === activeProject)}
-          activeProject={activeProject}
-        />
+      <div className="min-h-screen main-bg flex flex-col">
+        <NavBar />
+        <div className="flex flex-row flex-grow">
+          <Sidebar />
+          <Project
+            details={projectList.find((p) => p.id === activeProject)}
+            activeProject={activeProject}
+          />
+        </div>
       </div>
     </UserContext.Provider>
   );

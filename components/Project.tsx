@@ -5,8 +5,9 @@ import { SubsectionType } from '../types/types';
 import { subsections } from '../utils/constants';
 import TodoForm from './TodoForm';
 import Functions from './misc/Functions';
-import UserContext from '../utils/contexts/UserContext';
 import DuoBtnsText from './misc/DuoBtnsText';
+import axios from 'axios';
+import UserContext from '../utils/contexts/UserContext';
 
 interface ProjectProps {
   details?: ProjectInterface;
@@ -41,15 +42,8 @@ interface ProjectHeaderProps extends ProjectInterface {
   setActive: React.Dispatch<React.SetStateAction<SubsectionType>>;
 }
 
-function ProjectHeader({
-  title,
-  id,
-  todoList,
-  active,
-  setActive,
-}: ProjectHeaderProps) {
+function ProjectHeader({ title, id, active, setActive }: ProjectHeaderProps) {
   const { dispatch } = useContext(UserContext);
-
   const [edit, setEdit] = useState(false);
   const [projectTitle, setProjectTitle] = useState(title);
 
@@ -88,32 +82,48 @@ function ProjectHeader({
           <h2 className="text-3xl font-medium">{title}</h2>
           <Functions
             editCb={() => setEdit(true)}
-            trashCb={() => {
-              dispatch({
-                type: 'delete',
-                itemType: 'project',
-                payload: id,
-              });
+            trashCb={async () => {
+              try {
+                const res = await axios.delete(`/api/projects/${id}`);
+                if (res.status === 200) {
+                  dispatch({
+                    type: 'delete',
+                    itemType: 'project',
+                    payload: id,
+                  });
+                }
+              } catch (err) {
+                console.log(err);
+              }
             }}
           />
         </section>
       ) : (
         <form
           className="mb-7 flex items-center"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
 
-            dispatch({
-              type: 'edit',
-              itemType: 'project',
-              payload: {
-                id,
-                todoList,
+            try {
+              const res = await axios.put(`/api/projects/${id}`, {
                 title: projectTitle,
-              },
-            });
+              });
 
-            setEdit(false);
+              if ((res.status = 200)) {
+                dispatch({
+                  type: 'edit',
+                  itemType: 'project',
+                  payload: {
+                    id: id,
+                    title: projectTitle,
+                  },
+                });
+
+                setEdit(false);
+              }
+            } catch (err) {
+              console.log(err);
+            }
           }}
         >
           <input

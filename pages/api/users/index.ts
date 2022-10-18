@@ -11,16 +11,15 @@ import {
 import { hash } from 'bcryptjs';
 import { randomUUID } from 'crypto';
 import { PoolClient } from 'pg';
-import { LoggedInUser } from '../../../types/interfaces';
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { sessionOptions } from '../../../utils/session';
+import { UserData } from '../../../types/interfaces';
 
 let client: PoolClient | undefined;
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   const pool = connectToPool();
   client = client || (await pool.connect());
-
   switch (req.method) {
     case 'POST': {
       try {
@@ -69,13 +68,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         const hashed = await hash(req.body.password, 10);
         const uuid = randomUUID();
         await client.query(
-          `INSERT INTO users (id, username, password) VALUES ('${uuid}', '${req.body.username}', '${hashed}')`
+          `INSERT INTO ${process.env.SCHEMA}.users (id, username, password) VALUES ('${uuid}', '${req.body.username}', '${hashed}')`
         );
 
-        const user: LoggedInUser = {
+        const user: UserData = {
           id: uuid,
           loggedIn: true,
           username: req.body.username,
+          todos: '',
+          projects: '',
         };
         req.session.user = user;
         await req.session?.save();

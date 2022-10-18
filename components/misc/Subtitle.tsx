@@ -5,7 +5,11 @@ interface SubtitleProps {
 
 export default function Subtitle({ title, className }: SubtitleProps) {
   return (
-    <h4 className={`${className || ''} text-sm font-medium opacity-60`}>
+    <h4
+      className={`${
+        className || ''
+      } text-sm font-medium opacity-60 select-none`}
+    >
       {title}
     </h4>
   );

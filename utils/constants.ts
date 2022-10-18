@@ -5,3 +5,11 @@ export const signUpFields = [
   'password',
   'confirmPassword',
 ] as const;
+
+export const LOGGED_OUT_USER = {
+  id: '',
+  loggedIn: false,
+  username: '',
+  projects: '',
+  todos: '',
+};

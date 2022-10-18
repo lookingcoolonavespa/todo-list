@@ -1,15 +1,12 @@
 import axios, { AxiosError } from 'axios';
 import { NextPage } from 'next';
-import Link from 'next/link';
 import Router from 'next/router';
 import React, { ChangeEvent, useState } from 'react';
 import DuoBtnsLink from '../components/misc/DuoBtnsLink';
-import DuoBtns from '../components/misc/DuoBtnsText';
 import Form from '../components/misc/Form';
 import Logo from '../components/misc/Logo';
 import { SignUpFields } from '../types/types';
 import Field from '../utils/classes/Field';
-import { signUpFields } from '../utils/constants';
 import {
   checkPassword,
   checkUsername,
@@ -56,7 +53,7 @@ const Sign_Up: NextPage = () => {
           ) =>
           async () => {
             try {
-              const res = await axios.post('http://localhost:3000/api/user', {
+              const res = await axios.post('http://localhost:3000/api/users', {
                 username: inputValues.username,
                 password: inputValues.password,
               });

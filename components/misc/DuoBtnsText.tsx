@@ -20,7 +20,7 @@ export default function DuoBtnsTextText({
       </button>
       <button
         type="button"
-        className="underline_on_hover rect-btn"
+        className="underline-on-hover rect-btn"
         onClick={rightCb}
       >
         {rightText}

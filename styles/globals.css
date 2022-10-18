@@ -40,7 +40,7 @@ input:focus {
   @apply p-2 rounded hover:bg-slate-600 hover:-translate-x-0.5 hover:-translate-y-0.5;
 }
 
-.underline_on_hover {
+.underline-on-hover {
   @apply hover:underline;
 }
 

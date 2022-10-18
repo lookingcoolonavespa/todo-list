@@ -1,6 +1,5 @@
 import axios, { AxiosError } from 'axios';
 import { NextPage } from 'next';
-import Link from 'next/link';
 import Router from 'next/router';
 import { ChangeEvent, useState } from 'react';
 import DuoBtnsLink from '../components/misc/DuoBtnsLink';
