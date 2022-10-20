@@ -1,17 +1,13 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { withIronSessionApiRoute } from 'iron-session/next';
-import { PoolClient } from 'pg';
-import { connectToPool } from '../../../utils/pool';
+import { connectToClient } from '../../../utils/client';
 import bcrypt from 'bcryptjs';
 import { User } from '../../../types/interfaces';
 import { sessionOptions } from '../../../utils/session';
 
-let client: PoolClient;
-
 async function loginRoute(req: NextApiRequest, res: NextApiResponse) {
   const { username, password } = req.body;
-  const pool = connectToPool();
-  client = client || (await pool.connect());
+  const client = await connectToClient();
 
   try {
     const data = await client.query<User>(

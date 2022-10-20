@@ -1,15 +1,11 @@
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { sessionOptions } from '../../../utils/session';
-import { PoolClient } from 'pg';
-import { connectToPool } from '../../../utils/pool';
-
-let client: PoolClient | undefined;
+import { connectToClient } from '../../../utils/client';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') return res.status(405);
-  const pool = connectToPool();
-  client = client || (await pool.connect());
+  const client = await connectToClient();
 
   const { uid } = req.query;
   try {
@@ -27,9 +23,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       loggedIn: false,
       id: '',
     });
-  } finally {
-    client.release(true);
-    client = undefined;
   }
 }
 

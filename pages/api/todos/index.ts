@@ -1,20 +1,16 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { body, validationResult } from 'express-validator';
-import { connectToPool } from '../../../utils/pool';
+import { connectToClient } from '../../../utils/client';
 import initMiddleware from '../../../utils/initMiddleware';
 import validateMiddleware from '../../../utils/validateMiddleware';
 import { isValueUnique } from '../../../utils/validators';
-import { PoolClient } from 'pg';
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { sessionOptions } from '../../../utils/session';
-
-let client: PoolClient | undefined;
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!req.session.user || !req.session.user.loggedIn) return res.status(401);
 
-  const pool = connectToPool();
-  client = client || (await pool.connect());
+  const client = await connectToClient();
 
   switch (req.method) {
     case 'POST': {
@@ -38,7 +34,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
               project: string
             ) {
               const result = await isValueUnique(
-                client as PoolClient,
+                client,
                 project,
                 'projects',
                 'id'
@@ -55,16 +51,18 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         }
 
         const output = await client.query(
-          `INSERT INTO ${process.env.SCHEMA}.todos (title, userid, project, due_date) VALUES ('${req.body.title}', '${req.session.user.id}', '${req.body.project}', '${req.body.due_date}') RETURNING id;`
+          `INSERT INTO ${process.env.SCHEMA}.todos (title, userid, project, due_date) VALUES ($1, $2, $3, $4) RETURNING id;`,
+          [
+            req.body.title,
+            req.session.user.id,
+            req.body.project,
+            req.body.due_date,
+          ]
         );
 
         return res.status(200).send(output.rows[0].id);
       } catch (err) {
         return res.status(500).json(err);
-      } finally {
-        client.release(true);
-        client = undefined;
-        return;
       }
     }
   }

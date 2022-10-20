@@ -1,6 +1,6 @@
 import { body, validationResult } from 'express-validator';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { connectToPool } from '../../../utils/pool';
+import { connectToClient } from '../../../utils/client';
 import initMiddleware from '../../../utils/initMiddleware';
 import validateMiddleware from '../../../utils/validateMiddleware';
 import {
@@ -10,16 +10,13 @@ import {
 } from '../../../utils/validators';
 import { hash } from 'bcryptjs';
 import { randomUUID } from 'crypto';
-import { PoolClient } from 'pg';
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { sessionOptions } from '../../../utils/session';
 import { UserData } from '../../../types/interfaces';
 
-let client: PoolClient | undefined;
-
 async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const pool = connectToPool();
-  client = client || (await pool.connect());
+  const client = await connectToClient();
+
   switch (req.method) {
     case 'POST': {
       try {
@@ -33,7 +30,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
               .withMessage('username must be between 6 and 20 characters')
               .custom(async function isUsernameInUse(username: string) {
                 const result = await isValueUnique(
-                  client as PoolClient,
+                  client,
                   username,
                   'users',
                   'username'
@@ -68,7 +65,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         const hashed = await hash(req.body.password, 10);
         const uuid = randomUUID();
         await client.query(
-          `INSERT INTO ${process.env.SCHEMA}.users (id, username, password) VALUES ('${uuid}', '${req.body.username}', '${hashed}')`
+          `INSERT INTO ${process.env.SCHEMA}.users (id, username, password) VALUES ($1, $2, $3)`,
+          [uuid, req.body.username, hashed]
         );
 
         const user: UserData = {
@@ -84,9 +82,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         return res.status(200).end();
       } catch (err) {
         return res.status(500).json(err);
-      } finally {
-        client.release(true);
-        client = undefined;
       }
     }
     default:

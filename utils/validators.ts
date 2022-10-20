@@ -1,12 +1,12 @@
 import { CustomValidator } from 'express-validator';
 import { Validator } from '../types/types';
-import { PoolClient } from 'pg';
+import { Client } from 'pg';
 
 export const doPasswordsMatch: CustomValidator = async (value, { req }) =>
   value === req.body.password;
 
 export const isValueUnique = async (
-  client: PoolClient,
+  client: Client,
   value: string,
   table: string,
   column: string

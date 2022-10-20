@@ -1,23 +1,26 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { body, validationResult } from 'express-validator';
-import { connectToPool } from '../../../utils/pool';
-import initMiddleware from '../../../utils/initMiddleware';
-import validateMiddleware from '../../../utils/validateMiddleware';
-import { isValueUnique } from '../../../utils/validators';
-import { PoolClient } from 'pg';
+import { connectToClient } from '../../../utils/client';
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { sessionOptions } from '../../../utils/session';
 
-let client: PoolClient | undefined;
-
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!req.session.user || !req.session.user.loggedIn) return res.status(401);
-  const pool = connectToPool();
-  client = client || (await pool.connect());
+  const client = await connectToClient();
 
   switch (req.method) {
     case 'PUT': {
       try {
+        const imports = {
+          initMiddleware: await import('../../../utils/initMiddleware'),
+          validateMiddleware: await import('../../../utils/validateMiddleware'),
+          validators: await import('../../../utils/validators'),
+          expressValidator: await import('express-validator'),
+        };
+        const initMiddleware = imports.initMiddleware.default;
+        const validateMiddleware = imports.validateMiddleware.default;
+        const { body, validationResult } = imports.expressValidator.default;
+        const isValueUnique = imports.validators.isValueUnique;
+
         await initMiddleware(
           validateMiddleware([
             body('title')
@@ -36,7 +39,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
               project: string
             ) {
               const result = await isValueUnique(
-                client as PoolClient,
+                client,
                 project,
                 'projects',
                 'id'
@@ -58,32 +61,32 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         }
 
         await client.query(
-          `UPDATE ${process.env.SCHEMA}.todos SET title = '${req.body.title}', project = '${req.body.project}', completed = '${req.body.completed}', due_date = '${req.body.due_date}' WHERE id = '${req.query.id}';`
+          `UPDATE ${process.env.SCHEMA}.todos SET title = $1, project = $2, completed = $3, due_date = $4 WHERE id = $5;`,
+          [
+            req.body.title,
+            req.body.project,
+            req.body.completed,
+            req.body.due_date,
+            req.query.id,
+          ]
         );
 
         return res.status(200).end();
       } catch (err) {
         return res.status(500).json(err);
-      } finally {
-        client.release(true);
-        client = undefined;
-        return;
       }
     }
 
     case 'DELETE': {
       try {
         await client.query(
-          `DELETE FROM ${process.env.SCHEMA}.todos WHERE id = '${req.query.id}'`
+          `DELETE FROM ${process.env.SCHEMA}.todos WHERE id = $1`,
+          [req.query.id]
         );
 
         return res.status(200).end();
       } catch (err) {
         return res.status(500).json(err);
-      } finally {
-        client.release(true);
-        client = undefined;
-        return;
       }
     }
   }

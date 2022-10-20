@@ -54,6 +54,13 @@ function ProjectHeader({ title, id, active, setActive }: ProjectHeaderProps) {
   const underlineRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(
+    function updateTitleBeingEdited() {
+      setProjectTitle(title);
+    },
+    [title]
+  );
+
+  useEffect(
     function animateUnderline() {
       const activeEl = subsectionRef.current[active];
       const underlineEl = underlineRef.current;
