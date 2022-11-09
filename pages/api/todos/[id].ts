@@ -16,9 +16,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           validators: await import('../../../utils/validators'),
           expressValidator: await import('express-validator'),
         };
+
         const initMiddleware = imports.initMiddleware.default;
         const validateMiddleware = imports.validateMiddleware.default;
-        const { body, validationResult } = imports.expressValidator.default;
+        const { body, validationResult } = imports.expressValidator;
+
         const isValueUnique = imports.validators.isValueUnique;
 
         await initMiddleware(
@@ -54,7 +56,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
               .withMessage('complete status needs to be a boolean'),
           ])
         )(req, res);
-
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
           return res.status(422).json({ errors: errors.array() });

@@ -17,7 +17,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       };
       const initMiddleware = imports.initMiddleware.default;
       const validateMiddleware = imports.validateMiddleware.default;
-      const { body, validationResult } = imports.expressValidator.default;
+      const { body, validationResult } = imports.expressValidator;
       try {
         await initMiddleware(
           validateMiddleware([
