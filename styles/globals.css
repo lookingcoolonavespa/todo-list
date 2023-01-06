@@ -8,6 +8,7 @@ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  overflow: hidden;
 }
 
 a {
@@ -21,7 +22,7 @@ a {
 }
 
 html {
-  @apply text-gray-300;
+  @apply text-gray-300 text-sm md:text-base;
 }
 
 input:focus {
@@ -51,11 +52,24 @@ input:focus {
 .main-bg {
   @apply bg-slate-700;
 }
+.secondary-bg {
+  @apply bg-slate-800;
+}
+.tertiary-bg {
+  @apply bg-slate-400;
+}
+.tertiary-text {
+  @apply text-gray-700;
+}
 
 .input_text {
   @apply min-w-0 bg-gray-300 text-gray-900 py-1 px-2 rounded flex-shrink;
 }
 
 .title {
-  @apply text-4xl font-medium;
+  @apply text-2xl md:text-4xl font-medium;
+}
+
+.hide {
+  transform: translateX(-100%);
 }

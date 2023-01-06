@@ -66,7 +66,33 @@ const Login: NextPage = () => {
           }
         }}
         btns={
-          <DuoBtnsLink leftText="Log in" rightText="Sign up" href="/sign_up" />
+          <div>
+            <DuoBtnsLink
+              leftText="Log in"
+              rightText="Sign up"
+              href="/sign_up"
+              className="mb-5"
+            />
+            <a
+              className="cursor-pointer hover:underline"
+              onClick={async () => {
+                try {
+                  await axios.post('/api/users/login', {
+                    username: 'nksupermarket',
+                    password: 'SijQeJX@hnzgcZ5',
+                  });
+
+                  Router.push('/');
+                } catch (err) {
+                  const error = err as AxiosError;
+                  if (!error) return;
+                  console.error(err);
+                }
+              }}
+            >
+              Log in with guest account
+            </a>
+          </div>
         }
         close={() => {}}
         classNames="flex justify-center items-center flex-col w-full "

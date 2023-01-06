@@ -4,17 +4,55 @@ import Project from '../utils/classes/Project';
 import InputBox from './misc/InputBox';
 import Subtitle from './misc/Subtitle';
 import axios from 'axios';
+import MenuSvg from './svg/MenuSvg';
+import CloseSvg from './svg/CloseSvg';
 
-export default function Sidebar() {
-  const { projectList } = useContext(UserContext);
+export function Sidebar() {
+  const { projectList, isMobile } = useContext(UserContext);
+  return (
+    <aside className="w-64 secondary-bg min-h-full z-10">
+      <div className="flex flex-col gap-y-5 py-10 px-5 relative ">
+        <ProjectForm />
+        <Subtitle title="Projects" />
+        {projectList.map((p) => (
+          <ProjectBtn key={p.id} {...p} />
+        ))}
+      </div>
+    </aside>
+  );
+}
+interface MobileProps {
+  className?: string;
+  setSidebarVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  visible: boolean;
+}
+export function MobileSidebar({
+  className,
+  setSidebarVisible,
+  visible,
+}: MobileProps) {
+  const { projectList, isMobile } = useContext(UserContext);
 
   return (
-    <aside className="w-64 flex flex-col gap-y-5 py-10 px-5 bg-slate-800 min-h-full">
-      <ProjectForm />
-      <Subtitle title="Projects" />
-      {projectList.map((p) => (
-        <ProjectBtn key={p.id} {...p} />
-      ))}
+    <aside
+      className={`w-64 secondary-bg min-h-full z-10 absolute ${
+        visible ? '' : 'translate-x-[-100%]'
+      } ${className || ''}`}
+    >
+      <div className="flex flex-col gap-y-5 py-10 px-5 relative ">
+        <ProjectForm />
+        <Subtitle title="Projects" />
+        {projectList.map((p) => (
+          <ProjectBtn key={p.id} {...p} />
+        ))}
+        <button
+          type="button"
+          className="absolute right-[-30px] top-3"
+          onClick={() => setSidebarVisible!((prev) => !prev)}
+        >
+          {visible ? <CloseSvg /> : <MenuSvg classNames="" size="20" />}
+        </button>
+      </div>
     </aside>
   );
 }

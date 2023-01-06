@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
-import { useState, useReducer } from 'react';
+import React, { useState, useReducer, useEffect } from 'react';
 import Project from '../components/Project';
-import Sidebar from '../components/Sidebar';
+import { Sidebar, MobileSidebar } from '../components/Sidebar';
 import UserContext from '../utils/contexts/UserContext';
 import ProjectClass from '../utils/classes/Project';
 import TodoClass from '../utils/classes/Todo';
@@ -12,7 +12,9 @@ import { DateStr, DispatchArgs } from '../types/types';
 import axios from 'axios';
 import Router from 'next/router';
 import Todo from '../utils/classes/Todo';
-import NavBar from '../components/NavBar';
+import { NavBar, MobileNavBar } from '../components/NavBar';
+import MenuSvg from '../components/svg/MenuSvg';
+import Device from '../components/Device';
 
 export const getServerSideProps = withIronSessionSsr(async ({ req, res }) => {
   if (req.session.user?.loggedIn) {
@@ -118,24 +120,14 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, res }) => {
 interface HomeProps {
   user: UserData;
 }
+interface State {
+  projectList: ProjectClass[];
+  todoList: TodoClass[];
+}
 
-const Home: NextPage<HomeProps> = ({ user }) => {
-  if (!user) Router.push('/login');
-
-  interface State {
-    projectList: ProjectClass[];
-    todoList: TodoClass[];
-  }
-
-  const [activeProject, setActiveProject] = useState(
-    JSON.parse(user.projects)[0]?.id || ''
-  );
-  const [{ projectList }, dispatch] = useReducer(reducer, {
-    projectList: JSON.parse(user.projects) as ProjectClass[],
-    todoList: JSON.parse(user.todos) as TodoClass[],
-  });
-
-  function reducer(state: State, action: DispatchArgs) {
+const reducer =
+  (setActiveProject: React.Dispatch<React.SetStateAction<string>>) =>
+  (state: State, action: DispatchArgs) => {
     let { projectList, todoList } = state;
     // handle todos
     if (action.itemType === 'todo') {
@@ -236,7 +228,17 @@ const Home: NextPage<HomeProps> = ({ user }) => {
       projectList,
       todoList,
     };
-  }
+  };
+const DesktopHome: NextPage<HomeProps> = ({ user }) => {
+  if (!user) Router.push('/login');
+
+  const [activeProject, setActiveProject] = useState<string>(
+    JSON.parse(user.projects)[0]?.id || ''
+  );
+  const [{ projectList }, dispatch] = useReducer(reducer(setActiveProject), {
+    projectList: JSON.parse(user.projects) as ProjectClass[],
+    todoList: JSON.parse(user.todos) as TodoClass[],
+  });
 
   return (
     <UserContext.Provider
@@ -246,9 +248,10 @@ const Home: NextPage<HomeProps> = ({ user }) => {
         activeProject,
         setActiveProject,
         user,
+        isMobile: false,
       }}
     >
-      <div className="min-h-screen main-bg flex flex-col">
+      <div className="min-h-screen secondary-bg flex flex-col">
         <NavBar />
         <div className="flex flex-row flex-grow">
           <Sidebar />
@@ -259,6 +262,57 @@ const Home: NextPage<HomeProps> = ({ user }) => {
         </div>
       </div>
     </UserContext.Provider>
+  );
+};
+
+const MobileHome: NextPage<HomeProps> = ({ user }) => {
+  if (!user) Router.push('/login');
+
+  const [activeProject, setActiveProject] = useState<string>(
+    JSON.parse(user.projects)[0]?.id || ''
+  );
+  const [{ projectList }, dispatch] = useReducer(reducer(setActiveProject), {
+    projectList: JSON.parse(user.projects) as ProjectClass[],
+    todoList: JSON.parse(user.todos) as TodoClass[],
+  });
+  const [sidebarVisible, setSidebarVisible] = useState(false);
+
+  return (
+    <UserContext.Provider
+      value={{
+        dispatch,
+        projectList,
+        activeProject,
+        setActiveProject,
+        user,
+        isMobile: true,
+      }}
+    >
+      <div className="min-h-screen secondary-bg flex flex-col">
+        <MobileNavBar />
+        <div className="flex flex-row flex-grow relative">
+          <MobileSidebar
+            setSidebarVisible={setSidebarVisible}
+            visible={sidebarVisible}
+          />
+          <Project
+            details={projectList.find((p) => p.id === activeProject)}
+            activeProject={activeProject}
+          />
+        </div>
+      </div>
+    </UserContext.Provider>
+  );
+};
+
+const Home: NextPage<HomeProps> = ({ user }) => {
+  return (
+    <Device>
+      {({ isMobile }) => {
+        if (isMobile) return <MobileHome user={user} />;
+        return <DesktopHome user={user} />;
+      }}
+    </Device>
   );
 };
 

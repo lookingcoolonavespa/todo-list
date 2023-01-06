@@ -8,7 +8,11 @@ import Todo from '../utils/classes/Todo';
 import useTodoDetails from '../utils/hooks/useTodoDetails';
 import axios from 'axios';
 
-export default function TodoForm() {
+interface TodoFormProps {
+  classNames?: string;
+}
+
+export default function TodoForm({ classNames }: TodoFormProps) {
   const { dispatch, projectList, activeProject } = useContext(UserContext);
 
   const [visible, setVisible] = useState(true);
@@ -20,7 +24,7 @@ export default function TodoForm() {
   });
 
   return (
-    <article>
+    <article className={classNames || ''}>
       <button
         className="w-full"
         type="button"
@@ -74,7 +78,7 @@ export default function TodoForm() {
           }
         }}
       >
-        <div className="flex flex-col gap-y-3 py-6 px-8">
+        <div className="flex flex-col gap-y-3 py-6 px-6 md:px-8">
           <section className="flex flex-col gap-y-3 rounded outline-1 outline-gray-700 outline px-5 py-3 mb-2">
             <div>
               <input
@@ -86,7 +90,7 @@ export default function TodoForm() {
                 onChange={onChange}
               />
             </div>
-            <div className="flex gap-x-3">
+            <div className="flex flex-col md:flex-row gap-y-3 gap-x-3">
               <input
                 type="date"
                 name="due_date"

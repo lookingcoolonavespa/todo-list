@@ -44,7 +44,7 @@ export default function Form({
       }}
       className={classNames}
     >
-      <div className="flex flex-col gap-y-3 mb-10">
+      <div className="flex flex-col gap-y-3 mb-8">
         <input type="password" hidden />
         {/* need this to turn off autocomplete */}
         {fields.map((f, idx) => {

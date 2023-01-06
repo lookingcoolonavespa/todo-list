@@ -5,3 +5,7 @@
 .bg {
   @apply bg-slate-400;
 }
+
+.padding_to_children > * {
+  @apply py-2;
+}

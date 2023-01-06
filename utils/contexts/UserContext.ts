@@ -10,12 +10,14 @@ const UserContext = createContext<{
   activeProject: string;
   setActiveProject: React.Dispatch<React.SetStateAction<string>> | null;
   user: UserData;
+  isMobile: boolean;
 }>({
   projectList: [],
   dispatch: () => {},
   activeProject: '',
   setActiveProject: null,
   user: LOGGED_OUT_USER,
+  isMobile: false,
 });
 
 export default UserContext;

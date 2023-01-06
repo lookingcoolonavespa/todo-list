@@ -120,7 +120,7 @@ function Todo({ id, title, due_date, completed, project }: TodoInterface) {
                 className="w-full"
               />
             </div>
-            <div className="flex gap-x-10 items-baseline mb-3">
+            <div className="flex flex-col my-5 md:my-3 md:flex-row gap-y-7 gap-x-10 items-baseline">
               <div>
                 Due :{' '}
                 <input
@@ -153,7 +153,6 @@ function Todo({ id, title, due_date, completed, project }: TodoInterface) {
                 setEdit(false);
                 reset();
               }}
-              className="mb-6"
             />
           </section>
         </form>

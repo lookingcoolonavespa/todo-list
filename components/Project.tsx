@@ -8,6 +8,7 @@ import Functions from './misc/Functions';
 import DuoBtnsText from './misc/DuoBtnsText';
 import axios from 'axios';
 import UserContext from '../utils/contexts/UserContext';
+import { useDeviceSelectors } from 'react-device-detect';
 
 interface ProjectProps {
   details?: ProjectInterface;
@@ -15,7 +16,7 @@ interface ProjectProps {
 }
 
 export default function Project({ details, activeProject }: ProjectProps) {
-  const [subsection, setSubsection] = useState<SubsectionType>('Today');
+  const [subsection, setSubsection] = useState<SubsectionType>('All');
 
   if (!details)
     return (
@@ -25,14 +26,16 @@ export default function Project({ details, activeProject }: ProjectProps) {
     );
 
   return (
-    <main className="flex flex-col basis-[768px] flex-shrink gap-y-11 my-10 md:mx-[10%] lg:mx-auto max-w-3xl">
-      <ProjectHeader
-        active={subsection}
-        setActive={setSubsection}
-        {...details}
-      />
-      <TodoForm key={activeProject} />
-      <TodoList list={details.todoList} />
+    <main className="main-bg flex-grow py-11 px-5 md:rounded-tl-md">
+      <div className=" max-w-3xl flex flex-col gap-y-9 md:gap-y-11 sm:px-[10%] lg:px-0 m-auto">
+        <ProjectHeader
+          active={subsection}
+          setActive={setSubsection}
+          {...details}
+        />
+        <TodoForm key={activeProject} classNames=" m-x-[100%]" />
+        <TodoList list={details.todoList} />
+      </div>
     </main>
   );
 }
@@ -43,7 +46,8 @@ interface ProjectHeaderProps extends ProjectInterface {
 }
 
 function ProjectHeader({ title, id, active, setActive }: ProjectHeaderProps) {
-  const { dispatch } = useContext(UserContext);
+  const { dispatch, isMobile } = useContext(UserContext);
+
   const [edit, setEdit] = useState(false);
   const [projectTitle, setProjectTitle] = useState(title);
 
@@ -82,11 +86,13 @@ function ProjectHeader({ title, id, active, setActive }: ProjectHeaderProps) {
     },
     [active]
   );
+
+  const titleSize = isMobile ? 'text-xl' : 'text-3xl';
   return (
-    <header>
+    <header className="mt-4 md:mt-0">
       {!edit ? (
-        <section className="mb-7 flex gap-x-3">
-          <h2 className="text-3xl font-medium">{title}</h2>
+        <section className="mb-5 md:mb-7 flex gap-x-3 justify-center md:justify-start">
+          <h2 className={`${titleSize} font-medium`}>{title}</h2>
           <Functions
             editCb={() => setEdit(true)}
             trashCb={async () => {
@@ -107,7 +113,7 @@ function ProjectHeader({ title, id, active, setActive }: ProjectHeaderProps) {
         </section>
       ) : (
         <form
-          className="mb-7 flex items-center"
+          className="mb-7 flex flex-col md:flex-row md:items-center"
           onSubmit={async (e) => {
             e.preventDefault();
 
@@ -135,7 +141,7 @@ function ProjectHeader({ title, id, active, setActive }: ProjectHeaderProps) {
         >
           <input
             type="text"
-            className="text-3xl font-medium bg-transparent w-64 mr-4 border-b-[1px] border-b-gray-300 py-2"
+            className={`${titleSize} font-medium bg-transparent w-64 mr-4 border-b-[1px] border-b-gray-300 py-2 mb-5 md:mb-0`}
             value={projectTitle}
             onChange={(e) => {
               setProjectTitle(e.target.value);
@@ -152,7 +158,7 @@ function ProjectHeader({ title, id, active, setActive }: ProjectHeaderProps) {
         </form>
       )}
       <section>
-        <div className="flex gap-x-20">
+        <div className="flex gap-x-10 md:gap-x-20 justify-center md:justify-start">
           {subsections.map((s) => (
             <Subsection
               ref={(el) => {
@@ -186,7 +192,9 @@ const Subsection = React.forwardRef<HTMLHeadingElement, SubsectionProps>(
       <button type="button">
         <h3
           ref={ref}
-          className={`text-lg px-3 -ml-3 mb-2 ${active ? '' : 'opacity-40'}`}
+          className={`text-md md:text-lg px-3 -ml-3 mb-2 ${
+            active ? '' : 'opacity-40'
+          }`}
           onClick={() => setActive(title)}
         >
           {title}
