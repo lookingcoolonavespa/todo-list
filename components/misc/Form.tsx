@@ -3,6 +3,7 @@ import useInputError from '../../utils/hooks/useInputError';
 import InputField from './InputField';
 import { SignUpFields, Validator } from '../../types/types';
 import Field from '../../utils/classes/Field';
+import { AxiosError } from 'axios';
 
 interface FormProps<K extends string> {
   fields: Field<K>[];
@@ -11,9 +12,7 @@ interface FormProps<K extends string> {
   btns: ReactNode | ReactNode[];
   classNames: string;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  submitAction: (
-    setInputError: React.Dispatch<React.SetStateAction<Record<K, string>>>
-  ) => () => Promise<void>;
+  submitAction: (handleError: (err: unknown) => void) => void;
   cleanUp?: () => void;
   close: () => void;
 }
@@ -40,7 +39,24 @@ export default function Form({
       autoComplete="nope"
       onSubmit={async (e) => {
         cleanUp = cleanUp || close;
-        await submitForm(e, inputValues, submitAction(setInputError), cleanUp);
+        await submitForm(
+          e,
+          inputValues,
+          () =>
+            submitAction((err) => {
+              const error = err as AxiosError;
+              if (!error) return;
+              if (error.response?.status === 401) {
+                setInputError((prev) => {
+                  return {
+                    ...prev,
+                    username: 'username does not match password',
+                  };
+                });
+              }
+            }),
+          cleanUp
+        );
       }}
       className={classNames}
     >

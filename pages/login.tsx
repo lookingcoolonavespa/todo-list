@@ -12,6 +12,23 @@ import {
   confirmPassword,
 } from '../utils/validators';
 
+async function login(
+  username: string,
+  password: string,
+  handleError?: (err: unknown) => void
+) {
+  try {
+    await axios.post('/api/users/login', {
+      username: username,
+      password: password,
+    });
+
+    Router.push('/');
+  } catch (err) {
+    handleError && handleError(err);
+  }
+}
+
 const Login: NextPage = () => {
   const [inputValues, setInputValues] = useState({
     username: '',
@@ -44,26 +61,13 @@ const Login: NextPage = () => {
           password: checkPassword,
         }}
         handleInputChange={handleInputChange}
-        submitAction={(setInputError) => async () => {
-          try {
-            await axios.post('/api/users/login', {
-              username: inputValues.username,
-              password: inputValues.password,
-            });
-
-            Router.push('/');
-          } catch (err) {
-            const error = err as AxiosError;
-            if (!error) return;
-            if (error.response?.status === 401) {
-              setInputError((prev) => {
-                return {
-                  ...prev,
-                  username: 'username does not match password',
-                };
-              });
-            }
-          }
+        submitAction={(handleError) => {
+          async () =>
+            await login(
+              inputValues.username,
+              inputValues.password,
+              handleError
+            );
         }}
         btns={
           <div>
@@ -76,18 +80,7 @@ const Login: NextPage = () => {
             <a
               className="cursor-pointer hover:underline"
               onClick={async () => {
-                try {
-                  await axios.post('/api/users/login', {
-                    username: 'nksupermarket',
-                    password: 'SijQeJX@hnzgcZ5',
-                  });
-
-                  Router.push('/');
-                } catch (err) {
-                  const error = err as AxiosError;
-                  if (!error) return;
-                  console.error(err);
-                }
+                await login('nksupermarket', 'SijQeJX@hnzgcZ5');
               }}
             >
               Log in with guest account

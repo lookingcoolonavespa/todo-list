@@ -8,7 +8,6 @@ import Functions from './misc/Functions';
 import DuoBtnsText from './misc/DuoBtnsText';
 import axios from 'axios';
 import UserContext from '../utils/contexts/UserContext';
-import { useDeviceSelectors } from 'react-device-detect';
 
 interface ProjectProps {
   details?: ProjectInterface;

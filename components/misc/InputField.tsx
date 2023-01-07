@@ -16,7 +16,7 @@ export default function InputField({
   ...inputProps
 }: InputFieldProps) {
   return (
-    <div className="max-w-[268px]">
+    <div className="max-w-[219px] md:max-w-[268px]">
       <div>
         {label && (
           <label className="block mb-2">
@@ -27,9 +27,13 @@ export default function InputField({
           <input className="input_text" {...inputProps} />
         </div>
       </div>
-      {error && (
-        <span className="block text-sm text-red-500 mt-2">{error}</span>
-      )}
+      <span
+        className={`block text-sm text-red-500 mt-2 transition-all ${
+          error ? 'max-h-[100px]' : 'max-h-0'
+        }`}
+      >
+        {error || ''}
+      </span>
     </div>
   );
 }
