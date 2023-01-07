@@ -22,7 +22,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
               .trim()
               .notEmpty()
               .withMessage('project title is missing')
-              .isLength({ max: 40 })
+              .isLength({ max: 255 })
               .withMessage('title is too long bruh'),
             body('due_date')
               .trim()

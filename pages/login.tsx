@@ -12,29 +12,13 @@ import {
   confirmPassword,
 } from '../utils/validators';
 
-async function login(
-  username: string,
-  password: string,
-  handleError?: (err: unknown) => void
-) {
-  try {
-    await axios.post('/api/users/login', {
-      username: username,
-      password: password,
-    });
-
-    Router.push('/');
-  } catch (err) {
-    handleError && handleError(err);
-  }
-}
-
 const Login: NextPage = () => {
   const [inputValues, setInputValues] = useState({
     username: '',
     password: '',
     confirmPassword: '',
   });
+  const [loggingIn, setLoggingIn] = useState(false);
 
   function handleInputChange(e: ChangeEvent) {
     const el = e.target as HTMLInputElement;
@@ -42,6 +26,24 @@ const Login: NextPage = () => {
       ...prev,
       [el.name]: el.value,
     }));
+  }
+
+  async function login(
+    username: string,
+    password: string,
+    handleError?: (err: unknown) => void
+  ) {
+    try {
+      setLoggingIn(true);
+      await axios.post('/api/users/login', {
+        username: username,
+        password: password,
+      });
+
+      Router.push('/');
+    } catch (err) {
+      handleError && handleError(err);
+    }
   }
 
   return (
@@ -76,6 +78,7 @@ const Login: NextPage = () => {
               rightText="Sign up"
               href="/sign_up"
               className="mb-5"
+              loading={loggingIn}
             />
             <a
               className="cursor-pointer hover:underline"
